@@ -1,8 +1,14 @@
-﻿using System.Globalization;
-using System.Runtime;
+﻿using LiveChartsCore.Kernel.Sketches;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore;
+using SkiaSharp;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using WhatsAppReader.Model;
+using LiveChartsCore.Defaults;
 
 namespace WhatsAppReader;
 
@@ -32,6 +38,26 @@ public partial class MainPage : ContentPage
 
     // ORIENTATION
     // Orientation : in Plateforms / Android / MainActivity : Added ScreenOrientation = ScreenOrientation.Portrait
+
+    // CHARTS
+    // Add the LiveChartsCore.SkiaSharpView.Maui 2.0.0-beta.701 nugget (prerelease must be ticked)
+    // Then add it in the MauiProgram.cs :
+    // using SkiaSharp.Views.Maui.Controls.Hosting;
+    // And :
+    // public static MauiApp CreateMauiApp()
+    // {
+    //    var builder = MauiApp.CreateBuilder();
+    //    builder
+    //        .UseMauiApp<App>()
+    //        // Initialize the .NET MAUI Skia Sharp by adding the below line of code
+    //        .UseSkiaSharp(true)
+    //        [...]
+    //    
+    // In the XAML, add the namespace : in the content tab
+    // xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+    //
+    // And add the chart itself
+    //
 
     // Data storage
     List<string> invalidLines = new List<string>();
@@ -71,7 +97,6 @@ public partial class MainPage : ContentPage
         bxStats.Color = Color.FromArgb("#9a0089");
     }
     #endregion
-
 
     #region LOAD
     // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -189,6 +214,26 @@ public partial class MainPage : ContentPage
         // Select a random line
         if (chatList.Count > 0)
             btnRandomLine_Clicked(null, null);
+
+        // Refresh the Graphs
+        UpdateCharts();
+    }
+
+
+
+    // Search for a random line
+    private void btnRandomLine_Clicked(object sender, EventArgs e)
+    {
+        Random random = new Random();
+        int index = random.Next(chatList.Count);
+        ChatLine aChatLine = chatList[index];
+
+        // Display results
+        lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message number : {index + 1}";
+        lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
+        lblLineSender.Text = aChatLine.Sender.ToString();
+        lblLineMessage.Text = aChatLine.Message;
+        lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
     }
 
     // Search for a specific line
@@ -201,9 +246,10 @@ public partial class MainPage : ContentPage
             {
                 if (theLine <= chatList.Count)
                 {
-                    ChatLine aChatLine = chatList[theLine];
+                    ChatLine aChatLine = chatList[theLine-1];
 
                     // Display results
+                    lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message number : {theLine}";
                     lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
                     lblLineSender.Text = aChatLine.Sender.ToString();
                     lblLineMessage.Text = aChatLine.Message;
@@ -235,18 +281,263 @@ public partial class MainPage : ContentPage
     }
     #endregion
 
-    // Search for a random line
-    private void btnRandomLine_Clicked(object sender, EventArgs e)
+    #region CHARTS
+    // Main Charts Updater Routine
+    private void UpdateCharts()
     {
-        Random random = new Random();
-        int index = random.Next(chatList.Count);
-        ChatLine aChatLine = chatList[index];
-
-        // Display results
-        lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
-        lblLineSender.Text = aChatLine.Sender.ToString();
-        lblLineMessage.Text = aChatLine.Message;
-        lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
+        UpdateChartMessagesSent();
+        UpdateChartMostMessagesSent();
+        UpdateChartMessagesOverTime();
     }
+
+    // Messages Sent
+    private void UpdateChartMessagesSent()
+    {
+        // Calculate count of messages
+        var groups = chatList.GroupBy(c => c.Sender)
+                             .Select(c => new { Sender = c.Key, MessagesCnt = c.Count() });
+
+        // Bar Chart Series
+        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+
+        // Serie #1 : Author 1
+        ColumnSeries<double?> seriesAuthor1 = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { groups.ElementAt(0).MessagesCnt },
+            Name = groups.ElementAt(0).Sender,
+            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            DataLabelsSize = 20,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab"))
+        };
+
+        // Serie #2 : Author 2
+        ColumnSeries<double?> seriesAuthor2 = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { groups.ElementAt(1).MessagesCnt },
+            Name = groups.ElementAt(1).Sender,
+            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            DataLabelsSize = 20,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089"))
+        };
+
+        // Serie #3 : Total
+        ColumnSeries<double?> seriesTotal = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { groups.ElementAt(0).MessagesCnt + groups.ElementAt(1).MessagesCnt },
+            Name = "Total",                      // Name of the series
+            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            DataLabelsSize = 20,                   // Data Labels
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc"))
+        };
+
+        // Add the series (Author 1, Author 2 and Total) to the chart
+        SeriesChart.Add(seriesAuthor1);
+        SeriesChart.Add(seriesAuthor2);
+        SeriesChart.Add(seriesTotal);
+
+        // Bar Chart Series
+        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+
+        // Axis
+        Axis AxisX = new Axis { Labels = new string[] { "Sent" } };
+        Axis.Add(AxisX);
+
+        // UI : Bind the chart
+        crtBarMessagesSent.Series = SeriesChart;
+        crtBarMessagesSent.XAxes = Axis;
+    }
+
+    // Day with the most messages
+    private void UpdateChartMostMessagesSent()
+    {
+        // Calculate count of messages
+        /*
+        var groups = chatList.GroupBy(c => new { c.DateTime.Date, c.Sender })
+                             .Select(g => new { g.Key.Date, g.Key.Sender, MessagesCnt = g.Count() })
+                             .OrderByDescending(x => x.MessagesCnt);
+        */
+
+        // Message Count by Date
+        var chatLinesPerDate = chatList.GroupBy(c => new { c.DateTime.Date })
+                                       .Select(g => new { g.Key.Date, MessagesCnt = g.Count() })
+                                       .OrderByDescending(x => x.MessagesCnt);
+        DateTime dateTimeMax = chatLinesPerDate.ElementAt(0).Date;
+
+        var chatLinesForDateMax = chatList.Where(c => c.DateTime.Date == dateTimeMax)
+                                          .GroupBy(c => new { c.Sender })
+                                          .Select(g => new { g.Key.Sender, MessagesCnt = g.Count() })
+                                          .OrderBy(x => x.Sender);
+
+        // Bar Chart Series
+        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+
+        // Serie #1 : Author 1
+        ColumnSeries<double?> seriesAuthor1 = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt },
+            Name = chatLinesForDateMax.ElementAt(0).Sender,
+            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            DataLabelsSize = 20,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab"))
+        };
+
+        // Serie #2 : Author 2
+        ColumnSeries<double?> seriesAuthor2 = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { chatLinesForDateMax.ElementAt(1).MessagesCnt },
+            Name = chatLinesForDateMax.ElementAt(1).Sender,
+            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            DataLabelsSize = 20,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089"))
+        };
+
+        // Serie #3 : Total
+        ColumnSeries<double?> seriesTotal = new ColumnSeries<double?>
+        {
+            Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt + chatLinesForDateMax.ElementAt(1).MessagesCnt },
+            Name = "Total",                      // Name of the series
+            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            DataLabelsSize = 20,                   // Data Labels
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc"))
+        };
+
+        // Add the series (Author 1, Author 2 and Total) to the chart
+        SeriesChart.Add(seriesAuthor1);
+        SeriesChart.Add(seriesAuthor2);
+        SeriesChart.Add(seriesTotal);
+
+        // Bar Chart Series
+        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+
+        // Axis
+        Axis AxisX = new Axis { Labels = new string[] { dateTimeMax.ToString("dd MMM yyyy") } };
+        Axis.Add(AxisX);
+
+        // UI : Bind the chart
+        crtBarMostMessagesSent.Series = SeriesChart;
+        crtBarMostMessagesSent.XAxes = Axis;
+    }
+
+    // Messages Over time
+    private void UpdateChartMessagesOverTime()
+    {
+        List<DateTimePoint> sender1 = new List<DateTimePoint>();
+        List<DateTimePoint> sender2 = new List<DateTimePoint>();
+        List<DateTimePoint> total = new List<DateTimePoint>();
+
+        // Group by Date and Sender :
+        // Date1, Sender1, 32
+        // Date1, Sender2, 64
+        // Date2, Sender1, 12
+        // Date2, Sender2, 37
+        // ...
+        // Get Count by Month
+        var chatLinesPerDate = chatList.GroupBy(c => new { DateYYYYMM = c.DateTime.ToString("yyyy/MM/01"), c.Sender })
+                                       .Select(g => new { Date = g.Key.DateYYYYMM, g.Key.Sender, MessageCnt = g.Count() })
+                                       .OrderBy(x => x.Date).ToList();
+
+        // Get Distinct Sender names
+        var senderNamesDistinct = chatLinesPerDate.Select(c => c.Sender).Distinct().ToList();
+
+        // Get Distinct Dates
+        var datesDistinct = chatLinesPerDate.Select(c => c.Date).Distinct().ToList();
+
+        // Calculate the running totals
+        int valSender1 = 0;
+        int valSender2 = 0;
+
+        foreach (var aDate in datesDistinct)
+        {
+            DateTime dateTime = DateTime.ParseExact(aDate, "yyyy/MM/dd", CultureInfo.InvariantCulture);
+
+            var aSender1 = chatLinesPerDate.FirstOrDefault(c => c.Date == aDate && c.Sender == senderNamesDistinct.ElementAt(0));
+            var aSender2 = chatLinesPerDate.FirstOrDefault(c => c.Date == aDate && c.Sender == senderNamesDistinct.ElementAt(1));
+
+            // Search for the value
+            valSender1 += (aSender1 == null ? 0 : aSender1.MessageCnt);
+            valSender2 += (aSender2 == null ? 0 : aSender2.MessageCnt);
+
+            // Add
+            sender1.Add(new DateTimePoint(dateTime, valSender1));
+            sender2.Add(new DateTimePoint(dateTime, valSender2));
+              total.Add(new DateTimePoint(dateTime, valSender1 + valSender2));
+        }
+
+        // Line Chart Series
+        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+
+        // Serie #1 : Sender 1
+        LineSeries<DateTimePoint> seriesSender1 = new LineSeries<DateTimePoint>
+        {
+            Values = sender1,
+            Name = senderNamesDistinct.ElementAt(0),
+            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#551c41ab")),
+            DataLabelsSize = 10,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            GeometrySize = 5 // Data Point formatting
+        };
+        SeriesChart.Add(seriesSender1);
+
+        // Serie #2 : Sender 2
+        LineSeries<DateTimePoint> seriesSender2 = new LineSeries<DateTimePoint>
+        {
+            Values = sender2,
+            Name = senderNamesDistinct.ElementAt(1),
+            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse("#559a0089")),
+            DataLabelsSize = 10,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            GeometrySize = 5 // Data Point formatting
+        };
+        SeriesChart.Add(seriesSender2);
+
+        // Serie #3 : Total
+        LineSeries<DateTimePoint> seriesTotal = new LineSeries<DateTimePoint>
+        {
+            Values = total,
+            Name = "Total",
+            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 },
+            Fill = null,
+            DataLabelsSize = 10,
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            GeometrySize = 5 // Data Point formatting
+        };
+        SeriesChart.Add(seriesTotal);
+
+        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+        // Axis
+        Axis AxisX = new Axis
+        {
+            // Set the label format as we want
+            Labeler = value => new DateTime((long)value).ToString("yyyy MMM"),
+            LabelsRotation = 30,
+            // when using a date time type, let the library know your unit 
+            // since all the months and years have a different number of days
+            // we can use the average, it would not cause any visible error in the user interface
+            // Months: TimeSpan.FromDays(30.4375).Ticks
+            // Years: TimeSpan.FromDays(365.25).Ticks
+            UnitWidth = TimeSpan.FromDays(30.4375).Ticks,
+            MinStep = TimeSpan.FromDays(30.4375).Ticks
+        };
+        Axis.Add(AxisX);
+
+        // UI : Bind the chart
+        crtLineEvolution.Series = SeriesChart;
+        crtLineEvolution.XAxes = Axis;
+    }
+    #endregion
 }
 

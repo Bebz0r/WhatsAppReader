@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="WhatsAppReader.MainPage">
 
     <ContentPage.Behaviors>
@@ -30,12 +31,12 @@
             <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="btnStats_Clicked"/>
 
             <!-- Labels -->
-            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"    FontSize="Micro" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuStats"    Text="stats"     FontSize="Micro" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"    FontSize="Small" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuStats"    Text="stats"   FontSize="Small" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
 
             <!-- Underlines -->
             <BoxView     Grid.Row="2" Grid.Column="0" x:Name="bxLoad"   HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
-            <BoxView     Grid.Row="2" Grid.Column="1" x:Name="bxStats"    HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="2" Grid.Column="1" x:Name="bxStats"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
         </Grid>
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -64,6 +65,7 @@
 
             <!-- Line Result -->
             <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,30">
+                <Label       x:Name="lblLineNumber"   HorizontalOptions="Center" Text="#"       FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineDateTime" HorizontalOptions="Center" Text="date"    FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineSender"   HorizontalOptions="Center" Text="sender"  FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineIsMedia"  HorizontalOptions="Center" Text="media ?" FontSize="Micro" TextColor="Silver"/>
@@ -80,8 +82,26 @@
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
         <!-- Stats -->
-        <StackLayout x:Name="slStats" IsVisible="False" Margin="10">
-            <Label Text="AAAA"/>
+        <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
+            <Label Text="messages sent" HorizontalOptions="Center"/>
+            <lvc:CartesianChart 
+                x:Name="crtBarMessagesSent"
+                HeightRequest="175"
+                LegendPosition="Bottom"/>
+            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+            <Label Text="most Messages sent" HorizontalOptions="Center"/>
+            <lvc:CartesianChart 
+                x:Name="crtBarMostMessagesSent"
+                HeightRequest="175"
+                LegendPosition="Bottom"/>
+            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+            <Label Text="messages over time" HorizontalOptions="Center"/>
+            <lvc:CartesianChart 
+                x:Name="crtLineEvolution"
+                HeightRequest="175"
+                LegendPosition="Bottom"/>
         </StackLayout>
     </StackLayout>
 

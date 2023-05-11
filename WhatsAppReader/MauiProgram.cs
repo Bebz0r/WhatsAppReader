@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace WhatsAppReader;
 
@@ -12,6 +13,8 @@ public static class MauiProgram
 			.UseMauiApp<App>()
             // Initialize the .NET MAUI Community Toolkit by adding the below line of code
             .UseMauiCommunityToolkit()
+            // Initialize the .NET MAUI Skia Sharp by adding the below line of code
+            .UseSkiaSharp(true)
             .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
