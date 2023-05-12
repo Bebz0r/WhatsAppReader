@@ -59,6 +59,12 @@ public partial class MainPage : ContentPage
     // And add the chart itself
     //
 
+    // CUSTOM THOUSAND SEPARATOR
+    // NumberFormatInfo nfi = new();
+    // nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+    // nfi.NumberGroupSeparator = "¤";
+    // keptLines.ToString("n0", nfi) 
+
     // Index to display lines
     int LineIndex = 0;
 
@@ -73,6 +79,9 @@ public partial class MainPage : ContentPage
     List<string> invalidLines = new();
     List<ChatLine> chatList   = new();
 
+    // Custom thousand separator
+    NumberFormatInfo nfi = new();
+
     // TODO:
     // Scrollable list
     public MainPage()
@@ -84,6 +93,9 @@ public partial class MainPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+        nfi.NumberGroupSeparator = "'";
 
         // Load the prefs
         PrefsHandler();
@@ -350,10 +362,10 @@ public partial class MainPage : ContentPage
         if (chatList.Count > 0)
         {
             // Log the counts in the Load
-            lblCount.Text = $"found {keptLines:n0} messages";
+            lblCount.Text = $"found {keptLines.ToString("n0", nfi)} messages";
 
             // Display the logs
-            lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
+            lblLogs.Text = $"found {realLines.ToString("n0", nfi)} line{(realLines > 1 ? "s" : "")} / kept {keptLines.ToString("n0", nfi)} valid";
 
             // Display the Log in the List view
             frmList.IsVisible = true;
@@ -682,7 +694,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Serie #2 : Author 2
@@ -694,7 +706,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Serie #3 : Total
@@ -706,7 +718,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -759,7 +771,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Serie #2 : Author 2
@@ -771,7 +783,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Serie #3 : Total
@@ -783,7 +795,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi)
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -860,7 +872,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1ColorOpacity)),
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             GeometrySize = 5 // Data Point formatting
@@ -876,7 +888,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2ColorOpacity)),
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             GeometrySize = 5 // Data Point formatting
@@ -892,7 +904,7 @@ public partial class MainPage : ContentPage
             Fill = null,
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
-            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("n0", nfi),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             GeometrySize = 5 // Data Point formatting
