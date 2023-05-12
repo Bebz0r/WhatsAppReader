@@ -74,9 +74,9 @@ public partial class MainPage : ContentPage
     List<ChatLine> chatList   = new();
 
     // TODO:
-    // File Loading Perfs
     // Data Label Labeller
     // Scrollable list
+    // Word Count
     public MainPage()
 	{
 		InitializeComponent();
@@ -120,6 +120,9 @@ public partial class MainPage : ContentPage
         // Reset the Lists
         invalidLines = new List<string>();
         chatList = new List<ChatLine>();
+        
+        // Refresh the UI (will be cleared)
+        MainThread.BeginInvokeOnMainThread(() => { PerformPostLoadActions(); });
 
         // Reset the counts
         realLines = 0;
@@ -211,28 +214,53 @@ public partial class MainPage : ContentPage
     // Display a line in the UI
     private void DisplayLine(int index)
     {
-        // Get the line
-        ChatLine aChatLine = chatList[index];
+        if (index > 0)
+        {
+            // Get the line
+            ChatLine aChatLine = chatList[index];
 
-        // Display results
-        lblLineNumber.Text = $"file line : {aChatLine.Line} / message #{index + 1}";
-        lblLineDateTime.Text = aChatLine.DateTimeStr;
-        lblLineSender.Text = aChatLine.Sender.ToString();
-        lblLineMessage.Text = aChatLine.Message;
-        lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
-        // TODO
-        lblLineWordCount.Text = $"word{(aChatLine.WordCount > 1 ? "s":"")} : {aChatLine.WordCount} (WIP)";
+            // Display results
+            lblLineNumber.Text = $"file line : {aChatLine.Line} / message #{index + 1}";
+            lblLineDateTime.Text = aChatLine.DateTimeStr;
+            lblLineSender.Text = aChatLine.Sender.ToString();
+            lblLineMessage.Text = aChatLine.Message;
+            lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
+            // TODO
+            lblLineWordCount.Text = $"word{(aChatLine.WordCount > 1 ? "s" : "")} : {aChatLine.WordCount} (WIP)";
 
-        // Enable or not the position buttons
-        btnMovePreviousFull.IsEnabled = (index != 0);
-        btnMovePrevious.IsEnabled     = (index != 0);
-        btnMoveNext.IsEnabled         = (index != chatList.Count - 1);
-        btnMoveNextFull.IsEnabled     = (index != chatList.Count - 1);
+            // Enable or not the position buttons
+            btnMovePreviousFull.IsEnabled = (index != 0);
+            btnMovePrevious.IsEnabled = (index != 0);
+            btnMoveNext.IsEnabled = (index != chatList.Count - 1);
+            btnMoveNextFull.IsEnabled = (index != chatList.Count - 1);
 
-        btnMovePreviousFull.Source = (index == 0 ? "movefull_disabled.png" : "movefull.png");
-        btnMovePrevious.Source     = (index == 0 ? "move_disabled.png" : "move.png");
-        btnMoveNext.Source         = (index == chatList.Count - 1 ? "move_disabled.png" : "move.png");
-        btnMoveNextFull.Source     = (index == chatList.Count - 1 ? "movefull_disabled.png" : "movefull.png");
+            btnMovePreviousFull.Source = (index == 0 ? "movefull_disabled.png" : "movefull.png");
+            btnMovePrevious.Source = (index == 0 ? "move_disabled.png" : "move.png");
+            btnMoveNext.Source = (index == chatList.Count - 1 ? "move_disabled.png" : "move.png");
+            btnMoveNextFull.Source = (index == chatList.Count - 1 ? "movefull_disabled.png" : "movefull.png");
+        }
+        else
+        {
+            // Reset the UI
+            // Display results
+            lblLineNumber.Text = "#";
+            lblLineDateTime.Text = "date";
+            lblLineSender.Text = "sender";
+            lblLineMessage.Text = "message";
+            lblLineIsMedia.Text = "media ?";
+            lblLineWordCount.Text = "word count";
+
+            // Enable or not the position buttons
+            btnMovePreviousFull.IsEnabled = false;
+            btnMovePrevious.IsEnabled = false ;
+            btnMoveNext.IsEnabled = false;
+            btnMoveNextFull.IsEnabled = false;
+
+            btnMovePreviousFull.Source = "movefull_disabled.png";
+            btnMovePrevious.Source = "move_disabled.png";
+            btnMoveNext.Source = "move_disabled.png";
+            btnMoveNextFull.Source = "movefull_disabled.png";
+        }
     }
 
     // Take DateTime format and return the resulting regex
@@ -369,6 +397,7 @@ public partial class MainPage : ContentPage
         }
         else
         {
+            DisplayLine(-1);
             lblLogs.Text = $"no valid line found - check the file";
         }
     }
