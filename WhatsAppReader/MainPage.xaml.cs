@@ -421,8 +421,8 @@ public partial class MainPage : ContentPage
                                 DateTime = dateTime,
                                 Sender = Sender,
                                 Message = Message,
-                                IsMedia = (Message == "<Media omitted>"),
-                                WordCount = (Message == "<Media omitted>" ? 0 : CountWords(Message))
+                                IsMedia = (Message == "<Media omitted>" | Message == "<Médias omis>"),
+                                WordCount = (Message == "<Media omitted>" | Message == "<Médias omis>" ? 0 : CountWords(Message))
                             };
 
                             chatList.Add(aChatLine);
