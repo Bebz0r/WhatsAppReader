@@ -61,6 +61,8 @@ public partial class MainPage : ContentPage
 
     // Index to display lines
     int LineIndex = 0;
+    // Display limit
+    int DisplayLimit = 100;
     // Data storage
     List<string> invalidLines = new List<string>();
     List<ChatLine> chatList = new List<ChatLine>();
@@ -86,10 +88,12 @@ public partial class MainPage : ContentPage
 
         // Display results
         lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message #{index + 1}";
-        lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
+        lblLineDateTime.Text = aChatLine.DateTimeStr;
         lblLineSender.Text = aChatLine.Sender.ToString();
         lblLineMessage.Text = aChatLine.Message;
         lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
+        // TODO
+        lblLineWordCount.Text = $"word{(aChatLine.WordCount > 1 ? "s":"")} : {aChatLine.WordCount} (WIP)";
 
         // Enable or not the position buttons
         btnMovePreviousFull.IsEnabled = (index != 0);
@@ -101,6 +105,13 @@ public partial class MainPage : ContentPage
         btnMovePrevious.Source     = (index == 0 ? "move_disabled.png" : "move.png");
         btnMoveNext.Source         = (index == chatList.Count - 1 ? "move_disabled.png" : "move.png");
         btnMoveNextFull.Source     = (index == chatList.Count - 1 ? "movefull_disabled.png" : "movefull.png");
+    }
+
+    // Count words
+    public static int CountWords(string s)
+    {
+        MatchCollection collection = Regex.Matches(s, @"[\S]+");
+        return collection.Count;
     }
     #endregion
 
@@ -237,7 +248,8 @@ public partial class MainPage : ContentPage
                             DateTime = dateTime,
                             Sender = Sender,
                             Message = Message,
-                            IsMedia = (Message == "<Media omitted>")
+                            IsMedia = (Message == "<Media omitted>"),
+                            WordCount = (Message == "<Media omitted>" ? 0 : CountWords(Message))
                         };
 
                         chatList.Add(aChatLine);
@@ -260,6 +272,30 @@ public partial class MainPage : ContentPage
 
                 lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
                 frmLogs.BackgroundColor = Color.FromArgb("7db497");
+
+                // Set the Calendar dates as the last ones and initiate the List filter
+                // This will trigger the dp_DateSelected methods
+                if (chatList.Count > 0)
+                {
+                    // Set the colors depending on the sender and senders 1 or 2
+                    var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
+                    foreach (ChatLine aChatLine in chatList)
+                    {
+                        aChatLine.ChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? clrSender1Opa : clrSender2Opa);
+                        aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
+                        aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
+                    }
+
+                    // Set the dates tresholds
+                    dpStart.MinimumDate = chatList.First().DateTime;
+                    dpStart.MaximumDate = chatList.Last().DateTime;
+                    dpEnd.MinimumDate   = chatList.First().DateTime;
+                    dpEnd.MaximumDate   = chatList.Last().DateTime;
+
+                    // Set the dates current values
+                    dpStart.Date = chatList.Last().DateTime;
+                    dpEnd.Date = chatList.Last().DateTime;
+                }
             }
         }
 
@@ -270,12 +306,14 @@ public partial class MainPage : ContentPage
         btnSearchLine.Source = (chatList.Count > 0 ? "search.png" : "search_disabled.png");
         txtLineNumber.IsEnabled = (chatList.Count > 0);
 
-        // Select a random line
+        // If lines are found
         if (chatList.Count > 0)
+        {
+            // Select a random line
             btnRandomLine_Clicked(null, null);
-
-        // Refresh the Graphs
-        UpdateCharts();
+            // Refresh the Graphs
+            UpdateCharts();
+        }
     }
 
     // Search for a random line
@@ -352,6 +390,32 @@ public partial class MainPage : ContentPage
         LineIndex = chatList.Count - 1;
         DisplayLine(LineIndex);
     }
+    #endregion
+
+    #region LIST
+    private async void btnTriggerSearchElement_Clicked(object sender, EventArgs e)
+    {
+        List<ChatLine> filteredList = new List<ChatLine>();
+        if (String.IsNullOrWhiteSpace(schChat.Text))
+            filteredList = chatList.Where(c => c.DateTime.Date >= dpStart.Date & c.DateTime.Date <= dpEnd.Date).ToList();
+        else
+            filteredList = chatList.Where(c => c.DateTime.Date >= dpStart.Date & c.DateTime.Date <= dpEnd.Date & c.Message.ToLower().Contains(schChat.Text.ToLower())).ToList();
+
+        // If beyond limit, warn the user
+        if (filteredList.Count > DisplayLimit)
+        {
+            var result = await DisplayAlert("Warning", $"Items to display are more than {DisplayLimit}. Are you sure you want to continue ?", "YES", "CANCEL");
+            if (result)
+                cvChatLines.ItemsSource = filteredList;
+                lblListCount.Text = $"{filteredList.Count} message{(filteredList.Count > 1 ? "s": "")} out of {chatList.Count}";
+        }
+        else
+            cvChatLines.ItemsSource = filteredList;
+
+        // Display the result
+        lblListCount.Text = $"{filteredList.Count} message{(filteredList.Count > 1 ? "s" : "")} out of {chatList.Count}";
+    }
+    
     #endregion
 
     #region CHARTS
@@ -612,7 +676,6 @@ public partial class MainPage : ContentPage
         crtLineEvolution.XAxes = Axis;
     }
     #endregion
-
 
 }
 

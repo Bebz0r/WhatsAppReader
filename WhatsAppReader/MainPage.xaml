@@ -25,7 +25,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Negative Margins to remove border -->
-            <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-130,10" />
+            <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
 
             <!-- Buttons -->
             <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"           WidthRequest="70" BackgroundColor="Transparent" Clicked="btnLoad_Clicked"/>
@@ -68,11 +68,12 @@
 
             <!-- Line Result -->
             <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,10">
-                <Label       x:Name="lblLineNumber"   HorizontalOptions="Center" Text="#"       FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineDateTime" HorizontalOptions="Center" Text="date"    FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineSender"   HorizontalOptions="Center" Text="sender"  FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineIsMedia"  HorizontalOptions="Center" Text="media ?" FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineMessage"  HorizontalOptions="Center" Text="message" FontSize="Micro" TextColor="Silver" HorizontalTextAlignment="Center"/>
+                <Label       x:Name="lblLineNumber"    HorizontalOptions="Center" Text="#"          FontSize="Micro" TextColor="Silver"/>
+                <Label       x:Name="lblLineDateTime"  HorizontalOptions="Center" Text="date"       FontSize="Micro" TextColor="Silver"/>
+                <Label       x:Name="lblLineSender"    HorizontalOptions="Center" Text="sender"     FontSize="Micro" TextColor="Silver"/>
+                <Label       x:Name="lblLineIsMedia"   HorizontalOptions="Center" Text="media ?"    FontSize="Micro" TextColor="Silver"/>
+                <Label       x:Name="lblLineMessage"   HorizontalOptions="Center" Text="message"    FontSize="Micro" TextColor="Silver" HorizontalTextAlignment="Center"/>
+                <Label       x:Name="lblLineWordCount" HorizontalOptions="Center" Text="word count" FontSize="Micro" TextColor="Silver"/>
             </StackLayout>
 
             <!-- Previous and Next -->
@@ -94,7 +95,53 @@
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
         <!-- List -->
         <StackLayout x:Name="slList" IsVisible="False" Margin="10,-10,10,0">
-            <Label Text="ABC" HorizontalOptions="Center"/>
+            <Grid ColumnSpacing="10" HorizontalOptions="Center" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <SearchBar  Grid.Row="0" Grid.ColumnSpan="4" x:Name="schChat" Placeholder="Search Chat"  FontSize="Small" SearchButtonPressed="btnTriggerSearchElement_Clicked"/>
+                
+                <Label      Grid.Row="1" Grid.Column="0"     Text="start :"   HorizontalOptions="End" VerticalOptions="Center"/>
+                <DatePicker Grid.Row="1" Grid.Column="1"     x:Name="dpStart" Format="dd MMM yyyy" DateSelected="btnTriggerSearchElement_Clicked"/>
+                <Label      Grid.Row="1" Grid.Column="2"     Text="end :"     HorizontalOptions="End" VerticalOptions="Center"/>
+                <DatePicker Grid.Row="1" Grid.Column="3"     x:Name="dpEnd"   Format="dd MMM yyyy" DateSelected="btnTriggerSearchElement_Clicked"/>
+                
+                <Frame Grid.Row="2" Grid.ColumnSpan="4" x:Name="frmList" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" HorizontalOptions="Center">
+                    <Label x:Name="lblListCount" Text="-" FontSize="Micro" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
+                </Frame>
+            </Grid>
+            
+            <CollectionView x:Name="cvChatLines" EmptyView="No chat lines">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="10"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding isSender1}" VerticalOptions="Start" Margin="0,10,0,0"/>
+                            <Frame Grid.Column="1" Background="{Binding Background}" BorderColor="White" CornerRadius="10" Padding="8" Margin="2" >
+                                <StackLayout  Orientation="Vertical">
+                                        <Label       Grid.Row="0" Text="{Binding Sender}"                          FontSize="Micro"/>
+                                        <Label       Grid.Row="1" Text="{Binding Message}"     TextColor="White" FontSize="Micro"/>
+                                        <Label       Grid.Row="2" Text="{Binding DateTimeStr}" TextColor="White" FontSize="Micro" HorizontalTextAlignment="End"/>
+                                </StackLayout>
+                            </Frame>
+                            <Ellipse Grid.Column="2" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding isSender2}" VerticalOptions="Start" Margin="0,10,0,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </StackLayout>
         
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
