@@ -74,7 +74,6 @@ public partial class MainPage : ContentPage
     List<ChatLine> chatList   = new();
 
     // TODO:
-    // Data Label Labeller
     // Scrollable list
     public MainPage()
 	{
@@ -225,8 +224,7 @@ public partial class MainPage : ContentPage
         lblLineSender.Text = aChatLine.Sender.ToString();
         lblLineMessage.Text = aChatLine.Message;
         lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
-        // TODO
-        lblLineWordCount.Text = $"word{(aChatLine.WordCount > 1 ? "s" : "")} : {aChatLine.WordCount} (WIP)";
+        lblLineWordCount.Text = $"word{(aChatLine.WordCount > 1 ? "s" : "")} : {aChatLine.WordCount}";
 
         // Enable or not the position buttons
         btnMovePreviousFull.IsEnabled = (index != 0);
@@ -683,7 +681,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Serie #2 : Author 2
@@ -694,7 +693,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Serie #3 : Total
@@ -705,7 +705,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Stroke Color and Thickness
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -757,7 +758,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Serie #2 : Author 2
@@ -768,7 +770,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Serie #3 : Total
@@ -779,7 +782,8 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Stroke Color and Thickness
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0")
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -856,6 +860,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1ColorOpacity)),
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             GeometrySize = 5 // Data Point formatting
@@ -871,6 +876,7 @@ public partial class MainPage : ContentPage
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2ColorOpacity)),
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             GeometrySize = 5 // Data Point formatting
@@ -886,6 +892,7 @@ public partial class MainPage : ContentPage
             Fill = null,
             DataLabelsSize = 10,
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
+            DataLabelsFormatter = (point) => point.PrimaryValue.ToString("N0"),
             GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Date Point formatting
             GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             GeometrySize = 5 // Data Point formatting
