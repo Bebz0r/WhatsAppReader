@@ -63,11 +63,11 @@ public partial class MainPage : ContentPage
     int LineIndex = 0;
 
     // Display limit
-    int DisplayLimit = 100;
+    readonly int DisplayLimit = 100;
 
     // Data storage
-    List<string> invalidLines = new List<string>();
-    List<ChatLine> chatList = new List<ChatLine>();
+    List<string> invalidLines = new();
+    List<ChatLine> chatList   = new();
 
     public MainPage()
 	{
@@ -113,7 +113,7 @@ public partial class MainPage : ContentPage
         ChatLine aChatLine = chatList[index];
 
         // Display results
-        lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message #{index + 1}";
+        lblLineNumber.Text = $"file line : {aChatLine.Line} / message #{index + 1}";
         lblLineDateTime.Text = aChatLine.DateTimeStr;
         lblLineSender.Text = aChatLine.Sender.ToString();
         lblLineMessage.Text = aChatLine.Message;
@@ -134,7 +134,7 @@ public partial class MainPage : ContentPage
     }
 
     // Take DateTime format and return the resulting regex
-    private string RegExHandler(string theFormat)
+    private static string RegExHandler(string theFormat)
     {
         // RegEx :
         // ^       : Start of the string
@@ -235,8 +235,8 @@ public partial class MainPage : ContentPage
 
                 // Set the colors and who is who
                 aChatLine.ChatColor = theChatColor;
-                aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
-                aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
+                aChatLine.IsSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
+                aChatLine.IsSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
             }
 
             // Set the dates tresholds - this will trigger the dp_DateSelected methods
@@ -272,7 +272,7 @@ public partial class MainPage : ContentPage
     #region MENU
     // MENU ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Load
-    private void btnLoad_Clicked(object sender, EventArgs e)
+    private void BtnLoad_Clicked(object sender, EventArgs e)
     {
         slLoad.IsVisible  = true;
         slList.IsVisible  = false;
@@ -291,7 +291,7 @@ public partial class MainPage : ContentPage
     }
 
     // List
-    private void btnList_Clicked(object sender, EventArgs e)
+    private void BtnList_Clicked(object sender, EventArgs e)
     {
         slLoad.IsVisible     = false;
         slList.IsVisible     = true;
@@ -309,7 +309,7 @@ public partial class MainPage : ContentPage
         bxSettings.Color = Colors.Transparent;
     }
     // Stats
-    private void btnStats_Clicked(object sender, EventArgs e)
+    private void BtnStats_Clicked(object sender, EventArgs e)
     {
         slLoad.IsVisible     = false;
         slList.IsVisible     = false;
@@ -327,7 +327,7 @@ public partial class MainPage : ContentPage
         bxSettings.Color = Colors.Transparent;
     }
 
-    private void btnSettings_Clicked(object sender, EventArgs e)
+    private void BtnSettings_Clicked(object sender, EventArgs e)
     {
         slLoad.IsVisible     = false;
         slList.IsVisible     = false;
@@ -349,16 +349,16 @@ public partial class MainPage : ContentPage
     #region LOAD
     // LOAD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Load the WhatsApp File
-    private async void btnLoadFile_Clicked(object sender, EventArgs e)
+    private async void BtnLoadFile_Clicked(object sender, EventArgs e)
 	{
         try
         {
             // Open the file picker
-            FilePickerFileType customFileType = new FilePickerFileType(
+            FilePickerFileType customFileType = new(
                 new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
-                { DevicePlatform.Android, new[] { "text/*" } }, // MIME type
-                { DevicePlatform.WinUI, new[] { ".txt", ".txt" } }, // file extension
+                    { DevicePlatform.Android, new[] { "text/*" } }, // MIME type
+                    { DevicePlatform.WinUI, new[] { ".txt", ".txt" } }, // file extension
                 });
 
             PickOptions options = new()
@@ -379,7 +379,7 @@ public partial class MainPage : ContentPage
                 int keptLines = 0;
 
                 //using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("iso-8859-1")))
-                using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("UTF-8")))
+                using (StreamReader sr = new(s, Encoding.GetEncoding("UTF-8")))
                 {
                     string currentLine;
 
@@ -392,7 +392,7 @@ public partial class MainPage : ContentPage
                     {
                         realLines++;
                         //  -      : The next part
-                        Regex rex = new Regex($"{RegExHandler(App.thePrefs.DateFormat)} - ");
+                        Regex rex = new($"{MainPage.RegExHandler(App.thePrefs.DateFormat)} - ");
 
                         // Input Validation
                         if (rex.IsMatch(currentLine))
@@ -406,16 +406,18 @@ public partial class MainPage : ContentPage
                             string datetimeString = currentLine.Split('-')[0];
                             DateTime dateTime = DateTime.ParseExact(datetimeString, $"{App.thePrefs.DateFormat}, HH:mm ", CultureInfo.InvariantCulture);
 
-                            // Cut the Date part, and the "- " just before the sender 
-                            currentLine = currentLine.Substring(datetimeString.Length + 1).TrimStart();
+                            // Cut the Date part, and the "- " just before the sender
+                            // This uses the range operator : [number..] : .. means till the rest
+                            currentLine = currentLine[(datetimeString.Length + 1)..].TrimStart();
 
                             // Author is the first part of  : 
                             string Sender = currentLine.Split(':')[0];
 
                             // Message - +2 gets rid of the ": "
-                            string Message = currentLine.Substring(Sender.Length + 2);
+                            // This uses the range operator : [number..] : .. means till the rest
+                            string Message = currentLine[(Sender.Length + 2)..];
 
-                            ChatLine aChatLine = new ChatLine
+                            ChatLine aChatLine = new()
                             {
                                 Line = realLines,
                                 DateTime = dateTime,
@@ -433,7 +435,9 @@ public partial class MainPage : ContentPage
                             // Not valid. Must by a new line from a message : add it to the previous element in the List<>
                             if (chatList.Count > 1)
                             {
-                                ChatLine lastChatLine = chatList[chatList.Count - 1];
+                                //ChatLine lastChatLine = chatList[chatList.Count - 1];
+                                // ^ Equivalent to v
+                                ChatLine lastChatLine = chatList[^1];
                                 lastChatLine.Message = $"{lastChatLine.Message}<br/>{currentLine}";
                             }
                         }
@@ -462,7 +466,7 @@ public partial class MainPage : ContentPage
             if (chatList.Count > 0)
             {
                 // Select a random line
-                btnRandomLine_Clicked(null, null);
+                BtnRandomLine_Clicked(null, null);
                 // Refresh the Graphs
                 UpdateCharts();
             }
@@ -474,13 +478,13 @@ public partial class MainPage : ContentPage
     }
 
     // Search for a random line
-    private void btnRandomLine_Clicked(object sender, EventArgs e)
+    private void BtnRandomLine_Clicked(object sender, EventArgs e)
     {
         // Hide the keyboard
         txtLineNumber.IsEnabled = false;
         txtLineNumber.IsEnabled = true;
 
-        Random random = new Random();
+        Random random = new();
         LineIndex = random.Next(chatList.Count);
 
         // Display the Line
@@ -488,17 +492,16 @@ public partial class MainPage : ContentPage
     }
 
     // Search for a specific line
-    private void btnSearchLine_Clicked(object sender, EventArgs e)
+    private void BtnSearchLine_Clicked(object sender, EventArgs e)
     {
-        int theLine;
-        if (int.TryParse(txtLineNumber.Text, out theLine))
+        if (int.TryParse(txtLineNumber.Text, out int theLine))
         {
             if (theLine > 0)
             {
                 if (theLine <= chatList.Count)
                 {
                     LineIndex = theLine - 1;
-                    
+
                     // Display the Line
                     DisplayLine(LineIndex);
                 }
@@ -524,25 +527,25 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void btnMovePreviousFull_Clicked(object sender, EventArgs e)
+    private void BtnMovePreviousFull_Clicked(object sender, EventArgs e)
     {
         LineIndex = 0;
         DisplayLine(LineIndex);
     }
 
-    private void btnMovePrevious_Clicked(object sender, EventArgs e)
+    private void BtnMovePrevious_Clicked(object sender, EventArgs e)
     {
         LineIndex--;
         DisplayLine(LineIndex);
     }
 
-    private void btnMoveNext_Clicked(object sender, EventArgs e)
+    private void BtnMoveNext_Clicked(object sender, EventArgs e)
     {
         LineIndex++;
         DisplayLine(LineIndex);
     }
 
-    private void btnMoveNextFull_Clicked(object sender, EventArgs e)
+    private void BtnMoveNextFull_Clicked(object sender, EventArgs e)
     {
         LineIndex = chatList.Count - 1;
         DisplayLine(LineIndex);
@@ -550,9 +553,9 @@ public partial class MainPage : ContentPage
     #endregion
 
     #region LIST
-    private async void btnTriggerSearchElement_Clicked(object sender, EventArgs e)
+    private async void BtnTriggerSearchElement_Clicked(object sender, EventArgs e)
     {
-        List<ChatLine> filteredList = new List<ChatLine>();
+        List<ChatLine> filteredList = new();
         if (String.IsNullOrWhiteSpace(schChat.Text))
             filteredList = chatList.Where(c => c.DateTime.Date >= dpStart.Date & c.DateTime.Date <= dpEnd.Date).ToList();
         else
@@ -592,10 +595,10 @@ public partial class MainPage : ContentPage
                              .Select(c => new { Sender = c.Key, MessagesCnt = c.Count() });
 
         // Bar Chart Series
-        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+        ObservableCollection<ISeries> SeriesChart = new();
 
         // Serie #1 : Author 1
-        ColumnSeries<double?> seriesAuthor1 = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesAuthor1 = new()
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt },
             Name = groups.ElementAt(0).Sender,
@@ -607,7 +610,7 @@ public partial class MainPage : ContentPage
         };
 
         // Serie #2 : Author 2
-        ColumnSeries<double?> seriesAuthor2 = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesAuthor2 = new()
         {
             Values = new List<double?> { groups.ElementAt(1).MessagesCnt },
             Name = groups.ElementAt(1).Sender,
@@ -618,7 +621,7 @@ public partial class MainPage : ContentPage
         };
 
         // Serie #3 : Total
-        ColumnSeries<double?> seriesTotal = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesTotal = new()
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt + groups.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
@@ -634,10 +637,10 @@ public partial class MainPage : ContentPage
         SeriesChart.Add(seriesTotal);
 
         // Bar Chart Series
-        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+        List<ICartesianAxis> Axis = new();
 
         // Axis
-        Axis AxisX = new Axis { Labels = new string[] { "Sent" } };
+        Axis AxisX = new() { Labels = new string[] { "Sent" } };
         Axis.Add(AxisX);
 
         // UI : Bind the chart
@@ -667,10 +670,10 @@ public partial class MainPage : ContentPage
                                           .OrderBy(x => x.Sender);
 
         // Bar Chart Series
-        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+        ObservableCollection<ISeries> SeriesChart = new();
 
         // Serie #1 : Author 1
-        ColumnSeries<double?> seriesAuthor1 = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesAuthor1 = new()
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(0).Sender,
@@ -681,7 +684,7 @@ public partial class MainPage : ContentPage
         };
 
         // Serie #2 : Author 2
-        ColumnSeries<double?> seriesAuthor2 = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesAuthor2 = new()
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(1).Sender,
@@ -692,7 +695,7 @@ public partial class MainPage : ContentPage
         };
 
         // Serie #3 : Total
-        ColumnSeries<double?> seriesTotal = new ColumnSeries<double?>
+        ColumnSeries<double?> seriesTotal = new()
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt + chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
@@ -708,10 +711,10 @@ public partial class MainPage : ContentPage
         SeriesChart.Add(seriesTotal);
 
         // Bar Chart Series
-        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+        List<ICartesianAxis> Axis = new();
 
         // Axis
-        Axis AxisX = new Axis { Labels = new string[] { dateTimeMax.ToString("dd MMM yyyy") } };
+        Axis AxisX = new() { Labels = new string[] { dateTimeMax.ToString("dd MMM yyyy") } };
         Axis.Add(AxisX);
 
         // UI : Bind the chart
@@ -722,9 +725,9 @@ public partial class MainPage : ContentPage
     // Messages Over time
     private void UpdateChartMessagesOverTime()
     {
-        List<DateTimePoint> sender1 = new List<DateTimePoint>();
-        List<DateTimePoint> sender2 = new List<DateTimePoint>();
-        List<DateTimePoint> total = new List<DateTimePoint>();
+        List<DateTimePoint> sender1 = new();
+        List<DateTimePoint> sender2 = new();
+        List<DateTimePoint> total = new();
 
         // Group by Date and Sender :
         // Date1, Sender1, 32
@@ -765,10 +768,10 @@ public partial class MainPage : ContentPage
         }
 
         // Line Chart Series
-        ObservableCollection<ISeries> SeriesChart = new ObservableCollection<ISeries>();
+        ObservableCollection<ISeries> SeriesChart = new();
 
         // Serie #1 : Sender 1
-        LineSeries<DateTimePoint> seriesSender1 = new LineSeries<DateTimePoint>
+        LineSeries<DateTimePoint> seriesSender1 = new()
         {
             Values = sender1,
             Name = senderNamesDistinct.ElementAt(0),
@@ -783,7 +786,7 @@ public partial class MainPage : ContentPage
         SeriesChart.Add(seriesSender1);
 
         // Serie #2 : Sender 2
-        LineSeries<DateTimePoint> seriesSender2 = new LineSeries<DateTimePoint>
+        LineSeries<DateTimePoint> seriesSender2 = new()
         {
             Values = sender2,
             Name = senderNamesDistinct.ElementAt(1),
@@ -798,7 +801,7 @@ public partial class MainPage : ContentPage
         SeriesChart.Add(seriesSender2);
 
         // Serie #3 : Total
-        LineSeries<DateTimePoint> seriesTotal = new LineSeries<DateTimePoint>
+        LineSeries<DateTimePoint> seriesTotal = new()
         {
             Values = total,
             Name = "Total",
@@ -812,9 +815,9 @@ public partial class MainPage : ContentPage
         };
         SeriesChart.Add(seriesTotal);
 
-        List<ICartesianAxis> Axis = new List<ICartesianAxis>();
+        List<ICartesianAxis> Axis = new();
         // Axis
-        Axis AxisX = new Axis
+        Axis AxisX = new()
         {
             // Set the label format as we want
             Labeler = value => new DateTime((long)value).ToString("yyyy MMM"),
@@ -837,12 +840,12 @@ public partial class MainPage : ContentPage
 
     #region SETTINGS
     // Save the settings
-    private void btnSaveSettings_Clicked(object sender, EventArgs e)
+    private void BtnSaveSettings_Clicked(object sender, EventArgs e)
     {
         // Hexadecimal Regex
         // #([a-fA-F0-9]){6}$
-        Regex rexColor   = new Regex("#([a-fA-F0-9]){6}$");
-        Regex rexOpacity = new Regex("([a-fA-F0-9]){2}$");
+        Regex rexColor   = new("#([a-fA-F0-9]){6}$");
+        Regex rexOpacity = new("([a-fA-F0-9]){2}$");
 
         // Input Validation : Regex & Emptyness
         if (rexColor.IsMatch(txtSender1Color.Text)
@@ -867,12 +870,12 @@ public partial class MainPage : ContentPage
                 foreach (ChatLine aChatLine in chatList)
                 {
                     aChatLine.ChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? App.thePrefs.Sender1ColorOpacity : App.thePrefs.Sender2ColorOpacity);
-                    aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
-                    aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
+                    aChatLine.IsSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
+                    aChatLine.IsSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
                 }
 
                 // Refresh the collection view
-                btnTriggerSearchElement_Clicked(null, null);
+                BtnTriggerSearchElement_Clicked(null, null);
 
                 // Refresh the Graphs
                 UpdateCharts();
@@ -888,7 +891,7 @@ public partial class MainPage : ContentPage
 
 
     // M/d/yy clicked
-    private void btnDateFormat_Mdy_Clicked(object sender, EventArgs e)
+    private void BtnDateFormat_Mdy_Clicked(object sender, EventArgs e)
     {
         txtDateFormat.Text = "M/d/yy";
         Preferences.Set("DateFormat", txtDateFormat.Text);
@@ -896,7 +899,7 @@ public partial class MainPage : ContentPage
     }
 
     // dd/MM/yyyy clicked
-    private void btnDateFormat_ddMMyyyy_Clicked(object sender, EventArgs e)
+    private void BtnDateFormat_ddMMyyyy_Clicked(object sender, EventArgs e)
     {
         txtDateFormat.Text = "dd/MM/yyyy";
         Preferences.Set("DateFormat", txtDateFormat.Text);

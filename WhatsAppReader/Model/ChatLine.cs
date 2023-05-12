@@ -12,8 +12,8 @@
             }
         }
         public string Sender { get; set; }
-        public bool isSender1 { get; set; }
-        public bool isSender2 { get; set; }
+        public bool IsSender1 { get; set; }
+        public bool IsSender2 { get; set; }
         public string Message { get; set; }
         public bool IsMedia { get; set; }
         public int WordCount { get; set; }
