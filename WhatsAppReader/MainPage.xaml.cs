@@ -80,13 +80,13 @@ public partial class MainPage : ContentPage
         base.OnAppearing();
 
         // Load the prefs
-        PrefsHander();
+        PrefsHandler();
     }
 
     #region HELPERS
     // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Load prefs and push them in the UI
-    private void PrefsHander()
+    private void PrefsHandler()
     {
         // Load the prefs
         App.thePrefs = new Prefs
@@ -190,7 +190,7 @@ public partial class MainPage : ContentPage
             // ====================================================
             // COLOR SETTER
             // Reload the prefs (colors) in case the previous run overwrote them
-            PrefsHander();
+            PrefsHandler();
 
             // Set the colors depending on the sender and senders 1 or 2
             var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
@@ -858,7 +858,7 @@ public partial class MainPage : ContentPage
             Preferences.Set("DateFormat",     txtDateFormat.Text);
 
             // Reload the prefs
-            PrefsHander();
+            PrefsHandler();
 
             // Refresh the colors
             if (chatList.Count > 0)
@@ -891,12 +891,16 @@ public partial class MainPage : ContentPage
     private void btnDateFormat_Mdy_Clicked(object sender, EventArgs e)
     {
         txtDateFormat.Text = "M/d/yy";
+        Preferences.Set("DateFormat", txtDateFormat.Text);
+        PrefsHandler();
     }
 
     // dd/MM/yyyy clicked
     private void btnDateFormat_ddMMyyyy_Clicked(object sender, EventArgs e)
     {
         txtDateFormat.Text = "dd/MM/yyyy";
+        Preferences.Set("DateFormat", txtDateFormat.Text);
+        PrefsHandler();
     }
     #endregion
 }
