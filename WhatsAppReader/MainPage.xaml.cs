@@ -59,47 +59,103 @@ public partial class MainPage : ContentPage
     // And add the chart itself
     //
 
+    // Index to display lines
+    int LineIndex = 0;
     // Data storage
     List<string> invalidLines = new List<string>();
     List<ChatLine> chatList = new List<ChatLine>();
+    // Chart Colors
+    string clrSender1    = "#1c41ab";
+    string clrSender1Opa = "#551c41ab";
+    string clrSender2    = "#9a0089";
+    string clrSender2Opa = "#559a0089";
+    string clrSenderT    = "#0000cc";
+    string clrSenderTOpa = "#55cccccc";
 
     public MainPage()
 	{
 		InitializeComponent();
 	}
 
+    #region HELPERS
+    // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    private void DisplayLine(int index)
+    {
+        // Get the line
+        ChatLine aChatLine = chatList[index];
+
+        // Display results
+        lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message #{index + 1}";
+        lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
+        lblLineSender.Text = aChatLine.Sender.ToString();
+        lblLineMessage.Text = aChatLine.Message;
+        lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
+
+        // Enable or not the position buttons
+        btnMovePreviousFull.IsEnabled = (index != 0);
+        btnMovePrevious.IsEnabled     = (index != 0);
+        btnMoveNext.IsEnabled         = (index != chatList.Count - 1);
+        btnMoveNextFull.IsEnabled     = (index != chatList.Count - 1);
+
+        btnMovePreviousFull.Source = (index == 0 ? "movefull_disabled.png" : "movefull.png");
+        btnMovePrevious.Source     = (index == 0 ? "move_disabled.png" : "move.png");
+        btnMoveNext.Source         = (index == chatList.Count - 1 ? "move_disabled.png" : "move.png");
+        btnMoveNextFull.Source     = (index == chatList.Count - 1 ? "movefull_disabled.png" : "movefull.png");
+    }
+    #endregion
 
     #region MENU
     // MENU ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Load
     private void btnLoad_Clicked(object sender, EventArgs e)
     {
-        slLoad.IsVisible = true;
+        slLoad.IsVisible  = true;
+        slList.IsVisible  = false;
         slStats.IsVisible = false;
 
-        btnLoad.Source = "load.png";
+        btnLoad.Source  = "load.png";
+        btnList.Source  = "list_disabled.png";
         btnStats.Source = "stats_disabled.png";
 
-        bxLoad.Color = Color.FromArgb("#9a0089");
+        bxLoad.Color  = Color.FromArgb("#9a0089");
+        bxList.Color  = Colors.Transparent;
         bxStats.Color = Colors.Transparent;
     }
 
+    // List
+    private void btnList_Clicked(object sender, EventArgs e)
+    {
+        slLoad.IsVisible  = false;
+        slList.IsVisible  = true;
+        slStats.IsVisible = false;
+
+        btnLoad.Source  = "load_disabled.png";
+        btnList.Source  = "list.png";
+        btnStats.Source = "stats_disabled.png";
+
+        bxLoad.Color  = Colors.Transparent;
+        bxList.Color  = Color.FromArgb("#9a0089");
+        bxStats.Color = Colors.Transparent;
+    }
     // Stats
     private void btnStats_Clicked(object sender, EventArgs e)
     {
-        slLoad.IsVisible = false;
+        slLoad.IsVisible  = false;
+        slList.IsVisible  = false;
         slStats.IsVisible = true;
 
-        btnLoad.Source = "load_disabled.png";
+        btnLoad.Source  = "load_disabled.png";
+        btnList.Source  = "list_disabled.png";
         btnStats.Source = "stats.png";
 
-        bxLoad.Color = Colors.Transparent;
+        bxLoad.Color  = Colors.Transparent;
+        bxList.Color  = Colors.Transparent;
         bxStats.Color = Color.FromArgb("#9a0089");
     }
     #endregion
 
     #region LOAD
-    // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // LOAD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Load the WhatsApp File
     private async void btnLoadFile_Clicked(object sender, EventArgs e)
 	{
@@ -113,7 +169,7 @@ public partial class MainPage : ContentPage
 
         PickOptions options = new()
         {
-            PickerTitle = "Please select a csv file",
+            PickerTitle = "Please select a txt file",
             FileTypes = customFileType,
         };
 
@@ -166,13 +222,13 @@ public partial class MainPage : ContentPage
                         string datetimeString = currentLine.Split('-')[0];
                         DateTime dateTime = DateTime.ParseExact(datetimeString, "M/d/yy, HH:mm ", CultureInfo.InvariantCulture);
 
-                        // Get the Author and message part, ignore the first space > Author: Message
-                        currentLine = currentLine.Split('-')[1].TrimStart();
+                        // Cut the Date part, and the "- " just before the sender 
+                        currentLine = currentLine.Substring(datetimeString.Length + 1);
 
                         // Author is the first part of  : 
                         string Sender = currentLine.Split(':')[0];
 
-                        // Message - +2 gets rid of the :_
+                        // Message - +2 gets rid of the ": "
                         string Message = currentLine.Substring(Sender.Length + 2);
 
                         ChatLine aChatLine = new ChatLine
@@ -199,6 +255,9 @@ public partial class MainPage : ContentPage
                 }
 
                 // Display results
+                frmCount.IsVisible = (chatList.Count > 0);
+                lblCount.Text = $"found {keptLines:n0} messages";
+
                 lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
                 frmLogs.BackgroundColor = Color.FromArgb("7db497");
             }
@@ -219,21 +278,18 @@ public partial class MainPage : ContentPage
         UpdateCharts();
     }
 
-
-
     // Search for a random line
     private void btnRandomLine_Clicked(object sender, EventArgs e)
     {
-        Random random = new Random();
-        int index = random.Next(chatList.Count);
-        ChatLine aChatLine = chatList[index];
+        // Hide the keyboard
+        txtLineNumber.IsEnabled = false;
+        txtLineNumber.IsEnabled = true;
 
-        // Display results
-        lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message number : {index + 1}";
-        lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
-        lblLineSender.Text = aChatLine.Sender.ToString();
-        lblLineMessage.Text = aChatLine.Message;
-        lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
+        Random random = new Random();
+        LineIndex = random.Next(chatList.Count);
+
+        // Display the Line
+        DisplayLine(LineIndex);
     }
 
     // Search for a specific line
@@ -246,17 +302,10 @@ public partial class MainPage : ContentPage
             {
                 if (theLine <= chatList.Count)
                 {
-                    ChatLine aChatLine = chatList[theLine-1];
-
-                    // Display results
-                    lblLineNumber.Text = $"file line : {aChatLine.Line.ToString()} / message number : {theLine}";
-                    lblLineDateTime.Text = aChatLine.DateTime.ToString("dd MMM yyyy");
-                    lblLineSender.Text = aChatLine.Sender.ToString();
-                    lblLineMessage.Text = aChatLine.Message;
-                    lblLineIsMedia.Text = (aChatLine.IsMedia ? "media" : "not media");
-
-                    lblLogs.Text = $"Line [{theLine}] loaded.";
-                    frmLogs.BackgroundColor = Color.FromArgb("7db497");
+                    LineIndex = theLine - 1;
+                    
+                    // Display the Line
+                    DisplayLine(LineIndex);
                 }
                 else
                 {
@@ -278,6 +327,30 @@ public partial class MainPage : ContentPage
             frmLogs.BackgroundColor = Color.FromArgb("b47d7d");
             lblLogs.Text = "Error : line number must be a positive integer.";
         }
+    }
+
+    private void btnMovePreviousFull_Clicked(object sender, EventArgs e)
+    {
+        LineIndex = 0;
+        DisplayLine(LineIndex);
+    }
+
+    private void btnMovePrevious_Clicked(object sender, EventArgs e)
+    {
+        LineIndex--;
+        DisplayLine(LineIndex);
+    }
+
+    private void btnMoveNext_Clicked(object sender, EventArgs e)
+    {
+        LineIndex++;
+        DisplayLine(LineIndex);
+    }
+
+    private void btnMoveNextFull_Clicked(object sender, EventArgs e)
+    {
+        LineIndex = chatList.Count - 1;
+        DisplayLine(LineIndex);
     }
     #endregion
 
@@ -305,10 +378,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt },
             Name = groups.ElementAt(0).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender1)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1))
         };
 
         // Serie #2 : Author 2
@@ -316,10 +389,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(1).MessagesCnt },
             Name = groups.ElementAt(1).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender2)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2))
         };
 
         // Serie #3 : Total
@@ -327,10 +400,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt + groups.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
-            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Stroke Color and Thickness
-            Fill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT))
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -379,10 +452,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(0).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender1)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1))
         };
 
         // Serie #2 : Author 2
@@ -390,10 +463,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(1).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender2)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2))
         };
 
         // Serie #3 : Total
@@ -401,10 +474,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt + chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
-            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Stroke Color and Thickness
-            Fill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc"))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT))
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -477,12 +550,12 @@ public partial class MainPage : ContentPage
         {
             Values = sender1,
             Name = senderNamesDistinct.ElementAt(0),
-            Stroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#551c41ab")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender1Opa)),
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#1c41ab")),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse("#1c41ab")) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse("#1c41ab")),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSender1)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesSender1);
@@ -492,12 +565,12 @@ public partial class MainPage : ContentPage
         {
             Values = sender2,
             Name = senderNamesDistinct.ElementAt(1),
-            Stroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse("#559a0089")),
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(clrSender2Opa)),
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#9a0089")),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse("#9a0089")) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse("#9a0089")),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSender2)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesSender2);
@@ -507,12 +580,12 @@ public partial class MainPage : ContentPage
         {
             Values = total,
             Name = "Total",
-            Stroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 },
+            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 },
             Fill = null,
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse("#cccccc")),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse("#cccccc")) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse("#cccccc")),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesTotal);
@@ -539,5 +612,7 @@ public partial class MainPage : ContentPage
         crtLineEvolution.XAxes = Axis;
     }
     #endregion
+
+
 }
 

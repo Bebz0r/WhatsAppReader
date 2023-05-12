@@ -21,22 +21,26 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
             </Grid.ColumnDefinitions>
 
             <!-- Negative Margins to remove border -->
             <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-130,10" />
 
             <!-- Buttons -->
-            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="btnLoad_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="btnStats_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"           WidthRequest="70" BackgroundColor="Transparent" Clicked="btnLoad_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"  WidthRequest="70" BackgroundColor="Transparent" Clicked="btnList_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="btnStats_Clicked"/>
 
             <!-- Labels -->
-            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"    FontSize="Small" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuStats"    Text="stats"   FontSize="Small" FontFamily="Typewriter" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"    FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"    FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"   FontSize="Small" HorizontalTextAlignment="Center"/>
 
             <!-- Underlines -->
-            <BoxView     Grid.Row="2" Grid.Column="0" x:Name="bxLoad"   HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
-            <BoxView     Grid.Row="2" Grid.Column="1" x:Name="bxStats"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"   HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
+            <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"   HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
         </Grid>
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -46,30 +50,37 @@
             <StackLayout HorizontalOptions="Center" Spacing="10">
                 <ImageButton x:Name="btnLoadFile"  HeightRequest="120" Source="loadfile.png" Clicked="btnLoadFile_Clicked" HorizontalOptions="Center" />
                 <Label Text="load a WhatsApp file" HorizontalTextAlignment="Center"/>
+
+                <Frame x:Name="frmCount" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="#9a0089" IsVisible="false" HasShadow="False">
+                    <Label x:Name="lblCount" Text="- count -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
+                </Frame>
             </StackLayout>
-            <BoxView Color="LightGray" HeightRequest="1" Margin="30"/>
             
-            <!-- Random Line -->
-            <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10">
-                <ImageButton x:Name="btnRandomLine" HeightRequest="50" Source="randomline_disabled.png" IsEnabled="false" HorizontalOptions="Center" Clicked="btnRandomLine_Clicked" />
-                <Label Text="pick a random line" HorizontalTextAlignment="Center"/>
-            </StackLayout>
             <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
             
-            <!-- Select Line -->
+            <!-- Random and Select Line -->
             <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10">
+                <ImageButton x:Name="btnRandomLine" HeightRequest="50" WidthRequest="50" Source="randomline_disabled.png" IsEnabled="false" HorizontalOptions="Center" Clicked="btnRandomLine_Clicked" />
                 <ImageButton x:Name="btnSearchLine" HeightRequest="50" WidthRequest="50"  Source="search_disabled.png" IsEnabled="false" Clicked="btnSearchLine_Clicked"/>
                 <Entry       x:Name="txtLineNumber" Placeholder="file line number" FontSize="Small" Keyboard="Telephone" Completed="btnSearchLine_Clicked"/>
             </StackLayout>
             <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
 
             <!-- Line Result -->
-            <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,30">
+            <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,10">
                 <Label       x:Name="lblLineNumber"   HorizontalOptions="Center" Text="#"       FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineDateTime" HorizontalOptions="Center" Text="date"    FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineSender"   HorizontalOptions="Center" Text="sender"  FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineIsMedia"  HorizontalOptions="Center" Text="media ?" FontSize="Micro" TextColor="Silver"/>
                 <Label       x:Name="lblLineMessage"  HorizontalOptions="Center" Text="message" FontSize="Micro" TextColor="Silver" HorizontalTextAlignment="Center"/>
+            </StackLayout>
+
+            <!-- Previous and Next -->
+            <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+                <ImageButton x:Name="btnMovePreviousFull" HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="90"  IsEnabled="false" Clicked="btnMovePreviousFull_Clicked"/>
+                <ImageButton x:Name="btnMovePrevious"     HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="90"  IsEnabled="false" Clicked="btnMovePrevious_Clicked"/>
+                <ImageButton x:Name="btnMoveNext"         HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="-90" IsEnabled="false" Clicked="btnMoveNext_Clicked"/>
+                <ImageButton x:Name="btnMoveNextFull"     HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="-90" IsEnabled="false" Clicked="btnMoveNextFull_Clicked"/>
             </StackLayout>
 
             <!-- Log banner -->
@@ -80,6 +91,12 @@
             </StackLayout>
         </StackLayout>
 
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <!-- List -->
+        <StackLayout x:Name="slList" IsVisible="False" Margin="10,-10,10,0">
+            <Label Text="ABC" HorizontalOptions="Center"/>
+        </StackLayout>
+        
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
         <!-- Stats -->
         <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
