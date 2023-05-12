@@ -1,8 +1,13 @@
-﻿namespace WhatsAppReader;
+﻿using WhatsAppReader.Model;
+
+namespace WhatsAppReader;
 
 public partial class App : Application
 {
-	public App()
+    // Preferences
+    public static Prefs thePrefs;
+
+    public App()
 	{
 		InitializeComponent();
 

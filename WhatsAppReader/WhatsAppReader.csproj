@@ -12,7 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>WhatsAppReader</ApplicationTitle>
+		<ApplicationTitle>WhatsApp Reader</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.whatsappreader</ApplicationId>

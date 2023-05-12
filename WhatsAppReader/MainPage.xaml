@@ -22,25 +22,29 @@
                 <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
             </Grid.ColumnDefinitions>
 
             <!-- Negative Margins to remove border -->
             <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
 
             <!-- Buttons -->
-            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"           WidthRequest="70" BackgroundColor="Transparent" Clicked="btnLoad_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"  WidthRequest="70" BackgroundColor="Transparent" Clicked="btnList_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="btnStats_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"              WidthRequest="70" BackgroundColor="Transparent" Clicked="btnLoad_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"     WidthRequest="70" BackgroundColor="Transparent" Clicked="btnList_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="btnStats_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="3" x:Name="btnSettings"     Source="settings_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="btnSettings_Clicked"/>
 
             <!-- Labels -->
-            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"    FontSize="Small" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"    FontSize="Small" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"   FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"     FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"     FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"    FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="3" x:Name="lblMenuSettings" Text="settings" FontSize="Small" HorizontalTextAlignment="Center"/>
 
             <!-- Underlines -->
-            <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"   HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
-            <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"   HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-            <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"      HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
+            <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"      HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"     HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="3" x:Name="bxSettings"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
         </Grid>
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -86,7 +90,7 @@
 
             <!-- Log banner -->
             <StackLayout HorizontalOptions="Center" Spacing="10">
-                <Frame x:Name="frmLogs" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False">
+                <Frame x:Name="frmLogs" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false">
                     <Label x:Name="lblLogs" Text="- logs -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
                 </Frame>
             </StackLayout>
@@ -114,7 +118,7 @@
                 <Label      Grid.Row="1" Grid.Column="2"     Text="end :"     HorizontalOptions="End" VerticalOptions="Center"/>
                 <DatePicker Grid.Row="1" Grid.Column="3"     x:Name="dpEnd"   Format="dd MMM yyyy" DateSelected="btnTriggerSearchElement_Clicked"/>
                 
-                <Frame Grid.Row="2" Grid.ColumnSpan="4" x:Name="frmList" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" HorizontalOptions="Center">
+                <Frame Grid.Row="2" Grid.ColumnSpan="4" x:Name="frmList" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false" HorizontalOptions="Center">
                     <Label x:Name="lblListCount" Text="-" FontSize="Micro" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
                 </Frame>
             </Grid>
@@ -166,6 +170,47 @@
                 x:Name="crtLineEvolution"
                 HeightRequest="175"
                 LegendPosition="Bottom"/>
+        </StackLayout>
+
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <!-- Settings -->
+        <StackLayout x:Name="slSettings" IsVisible="False" Margin="10">
+            <Label Text="Settings" FontSize="Micro"    FontFamily="Typewriter" HorizontalOptions="Center"/>
+            <!-- Date & Reason -->
+            <Grid ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Sender 1 -->
+                <Label Grid.Row="0" Grid.Column="0"  HorizontalOptions="End"                             Text="Sender1 color :"               FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="0" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender1Color" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
+                <!-- Sender 2 -->
+                <Label Grid.Row="1" Grid.Column="0"  HorizontalOptions="End"                             Text="Sender2 color :"               FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="1" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender2Color" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
+                <!-- Total -->
+                <Label Grid.Row="2" Grid.Column="0"  HorizontalOptions="End"                             Text="Total color :"                 FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="2" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSenderTColor" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
+                <!-- Total -->
+                <Label Grid.Row="3" Grid.Column="0"  HorizontalOptions="End"                             Text="Fill opacity :"                FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="3" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtOpacity"      Text="1"         Placeholder="55"    FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
+            </Grid>
+
+            <Grid Margin="0,30,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <ImageButton Grid.Row="0" Source="settings.png" HeightRequest="100" WidthRequest="50"       BackgroundColor="Transparent" Clicked="btnSaveSettings_Clicked"/>
+                <Label       Grid.Row="1" Text="save"           FontSize="Micro"    HorizontalOptions="Center"/>
+            </Grid>
         </StackLayout>
     </StackLayout>
 

@@ -66,21 +66,40 @@ public partial class MainPage : ContentPage
     // Data storage
     List<string> invalidLines = new List<string>();
     List<ChatLine> chatList = new List<ChatLine>();
-    // Chart Colors
-    string clrSender1    = "#1c41ab";
-    string clrSender1Opa = "#551c41ab";
-    string clrSender2    = "#9a0089";
-    string clrSender2Opa = "#559a0089";
-    string clrSenderT    = "#0000cc";
-    string clrSenderTOpa = "#55cccccc";
 
     public MainPage()
 	{
 		InitializeComponent();
 	}
 
+    // > Load Preferences
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Load the prefs
+        PrefsHander();
+    }
+
     #region HELPERS
     // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    private void PrefsHander()
+    {
+        // Load the prefs
+        App.thePrefs = new Prefs
+        {
+            Sender1Color = Preferences.Get("Sender1Color", "#1c3939"),
+            Sender2Color = Preferences.Get("Sender2Color", "#9a0089"),
+            SenderTColor = Preferences.Get("SenderTColor", "#0000cc"),
+            Opacity      = Preferences.Get("Opacity", "55")
+        };
+
+        // Bind the prefs
+        txtSender1Color.Text = App.thePrefs.Sender1Color;
+        txtSender2Color.Text = App.thePrefs.Sender2Color;
+        txtSenderTColor.Text = App.thePrefs.SenderTColor;
+        txtOpacity.Text      = App.thePrefs.Opacity;
+    }
     private void DisplayLine(int index)
     {
         // Get the line
@@ -123,45 +142,72 @@ public partial class MainPage : ContentPage
         slLoad.IsVisible  = true;
         slList.IsVisible  = false;
         slStats.IsVisible = false;
+        slSettings.IsVisible = false;
 
-        btnLoad.Source  = "load.png";
-        btnList.Source  = "list_disabled.png";
-        btnStats.Source = "stats_disabled.png";
+        btnLoad.Source     = "load.png";
+        btnList.Source     = "list_disabled.png";
+        btnStats.Source    = "stats_disabled.png";
+        btnSettings.Source = "settings_disabled.png";
 
-        bxLoad.Color  = Color.FromArgb("#9a0089");
-        bxList.Color  = Colors.Transparent;
-        bxStats.Color = Colors.Transparent;
+        bxLoad.Color     = Color.FromArgb("#9a0089");
+        bxList.Color     = Colors.Transparent;
+        bxStats.Color    = Colors.Transparent;
+        bxSettings.Color = Colors.Transparent;
     }
 
     // List
     private void btnList_Clicked(object sender, EventArgs e)
     {
-        slLoad.IsVisible  = false;
-        slList.IsVisible  = true;
-        slStats.IsVisible = false;
+        slLoad.IsVisible     = false;
+        slList.IsVisible     = true;
+        slStats.IsVisible    = false;
+        slSettings.IsVisible = false;
 
-        btnLoad.Source  = "load_disabled.png";
-        btnList.Source  = "list.png";
-        btnStats.Source = "stats_disabled.png";
+        btnLoad.Source     = "load_disabled.png";
+        btnList.Source     = "list.png";
+        btnStats.Source    = "stats_disabled.png";
+        btnSettings.Source = "settings_disabled.png";
 
-        bxLoad.Color  = Colors.Transparent;
-        bxList.Color  = Color.FromArgb("#9a0089");
-        bxStats.Color = Colors.Transparent;
+        bxLoad.Color     = Colors.Transparent;
+        bxList.Color     = Color.FromArgb("#9a0089");
+        bxStats.Color    = Colors.Transparent;
+        bxSettings.Color = Colors.Transparent;
     }
     // Stats
     private void btnStats_Clicked(object sender, EventArgs e)
     {
-        slLoad.IsVisible  = false;
-        slList.IsVisible  = false;
-        slStats.IsVisible = true;
+        slLoad.IsVisible     = false;
+        slList.IsVisible     = false;
+        slStats.IsVisible    = true;
+        slSettings.IsVisible = false;
 
-        btnLoad.Source  = "load_disabled.png";
-        btnList.Source  = "list_disabled.png";
-        btnStats.Source = "stats.png";
+        btnLoad.Source     = "load_disabled.png";
+        btnList.Source     = "list_disabled.png";
+        btnStats.Source    = "stats.png";
+        btnSettings.Source = "settings_disabled.png";
 
-        bxLoad.Color  = Colors.Transparent;
-        bxList.Color  = Colors.Transparent;
-        bxStats.Color = Color.FromArgb("#9a0089");
+        bxLoad.Color     = Colors.Transparent;
+        bxList.Color     = Colors.Transparent;
+        bxStats.Color    = Color.FromArgb("#9a0089");
+        bxSettings.Color = Colors.Transparent;
+    }
+
+    private void btnSettings_Clicked(object sender, EventArgs e)
+    {
+        slLoad.IsVisible     = false;
+        slList.IsVisible     = false;
+        slStats.IsVisible    = false;
+        slSettings.IsVisible = true;
+
+        btnLoad.Source     = "load_disabled.png";
+        btnList.Source     = "list_disabled.png";
+        btnStats.Source    = "stats_disabled.png";
+        btnSettings.Source = "settings.png";
+
+        bxLoad.Color     = Colors.Transparent;
+        bxList.Color     = Colors.Transparent;
+        bxStats.Color    = Colors.Transparent;
+        bxSettings.Color = Color.FromArgb("#9a0089");
     }
     #endregion
 
@@ -234,7 +280,7 @@ public partial class MainPage : ContentPage
                         DateTime dateTime = DateTime.ParseExact(datetimeString, "M/d/yy, HH:mm ", CultureInfo.InvariantCulture);
 
                         // Cut the Date part, and the "- " just before the sender 
-                        currentLine = currentLine.Substring(datetimeString.Length + 1);
+                        currentLine = currentLine.Substring(datetimeString.Length + 1).TrimStart();
 
                         // Author is the first part of  : 
                         string Sender = currentLine.Split(':')[0];
@@ -270,18 +316,64 @@ public partial class MainPage : ContentPage
                 frmCount.IsVisible = (chatList.Count > 0);
                 lblCount.Text = $"found {keptLines:n0} messages";
 
-                lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
+                frmLogs.IsVisible = (chatList.Count > 0);
                 frmLogs.BackgroundColor = Color.FromArgb("7db497");
+                lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
 
-                // Set the Calendar dates as the last ones and initiate the List filter
+                frmList.IsVisible = true;
+
+                // Set Colors and the Calendar dates as the last ones and initiate the List filter
                 // This will trigger the dp_DateSelected methods
                 if (chatList.Count > 0)
                 {
+                    // ====================================================
+                    // COLOR SETTER
+                    // Reload the prefs (colors) in case the previous run overwrote them
+                    PrefsHander();
+
                     // Set the colors depending on the sender and senders 1 or 2
                     var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
                     foreach (ChatLine aChatLine in chatList)
                     {
-                        aChatLine.ChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? clrSender1Opa : clrSender2Opa);
+                        // Set the color based on the sender
+                        string theChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? App.thePrefs.Sender1ColorOpacity : App.thePrefs.Sender2ColorOpacity);
+
+                        // Override colors if Beb or Chaton
+                        if (aChatLine.Sender == "Beb*")
+                        {
+                            // Set the Chat Color (Opa)
+                            theChatColor = "#559a0089";
+                            // Set the settings accordingly - without overriding the preferences
+                            if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
+                            {
+                                txtSender1Color.Text = theChatColor.Replace("#55", "#");
+                                App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#"); ;
+                            }
+                            else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
+                            {
+                                txtSender2Color.Text = theChatColor.Replace("#55", "#"); ;
+                                App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#"); ;
+                            }
+                        }
+                        else if (aChatLine.Sender == "😻 Chaton ❤️")
+                        {
+                            // Set the color (Opa)
+                            theChatColor = "#551c4040";
+                            // Set the settings accordingly - without overriding the preferences
+                            if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
+                            {
+                                txtSender1Color.Text = theChatColor.Replace("#55", "#");
+                                App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#");
+                            }
+                            else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
+                            {
+                                txtSender2Color.Text = theChatColor.Replace("#55", "#");
+                                App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#");
+                            }
+                        }
+
+                        // Set the colors and who is who
+                        aChatLine.ChatColor = theChatColor;
                         aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
                         aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
                     }
@@ -442,10 +534,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt },
             Name = groups.ElementAt(0).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender1)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
         };
 
         // Serie #2 : Author 2
@@ -453,10 +545,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(1).MessagesCnt },
             Name = groups.ElementAt(1).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender2)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color))
         };
 
         // Serie #3 : Total
@@ -464,10 +556,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { groups.ElementAt(0).MessagesCnt + groups.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Stroke Color and Thickness
-            Fill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor))
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -516,10 +608,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(0).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender1)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
         };
 
         // Serie #2 : Author 2
@@ -527,10 +619,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = chatLinesForDateMax.ElementAt(1).Sender,
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender2)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             DataLabelsSize = 20,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color))
         };
 
         // Serie #3 : Total
@@ -538,10 +630,10 @@ public partial class MainPage : ContentPage
         {
             Values = new List<double?> { chatLinesForDateMax.ElementAt(0).MessagesCnt + chatLinesForDateMax.ElementAt(1).MessagesCnt },
             Name = "Total",                      // Name of the series
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Stroke Color and Thickness
-            Fill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Stroke Color and Thickness
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             DataLabelsSize = 20,                   // Data Labels
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT))
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor))
         };
 
         // Add the series (Author 1, Author 2 and Total) to the chart
@@ -614,12 +706,12 @@ public partial class MainPage : ContentPage
         {
             Values = sender1,
             Name = senderNamesDistinct.ElementAt(0),
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender1Opa)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1ColorOpacity)),
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender1)),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSender1)) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSender1)),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesSender1);
@@ -629,12 +721,12 @@ public partial class MainPage : ContentPage
         {
             Values = sender2,
             Name = senderNamesDistinct.ElementAt(1),
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 },
-            Fill = new SolidColorPaint(SKColor.Parse(clrSender2Opa)),
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 },
+            Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2ColorOpacity)),
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSender2)),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSender2)) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSender2)),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender2Color)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesSender2);
@@ -644,12 +736,12 @@ public partial class MainPage : ContentPage
         {
             Values = total,
             Name = "Total",
-            Stroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 },
+            Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 },
             Fill = null,
             DataLabelsSize = 10,
-            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(clrSenderT)),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse(clrSenderT)) { StrokeThickness = 2 }, // Date Point formatting
-            GeometryFill = new SolidColorPaint(SKColor.Parse(clrSenderT)),
+            DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
+            GeometryStroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)) { StrokeThickness = 2 }, // Date Point formatting
+            GeometryFill = new SolidColorPaint(SKColor.Parse(App.thePrefs.SenderTColor)),
             GeometrySize = 5 // Data Point formatting
         };
         SeriesChart.Add(seriesTotal);
@@ -677,5 +769,55 @@ public partial class MainPage : ContentPage
     }
     #endregion
 
+    #region SETTINGS
+    // Save the settings
+    private void btnSaveSettings_Clicked(object sender, EventArgs e)
+    {
+        // Hexadecimal Regex
+        // #([a-fA-F0-9]){6}$
+        Regex rexColor   = new Regex("#([a-fA-F0-9]){6}$");
+        Regex rexOpacity = new Regex("([a-fA-F0-9]){2}$");
+
+        // Input Validation : Regex & Emptyness
+        if (rexColor.IsMatch(txtSender1Color.Text)
+            & rexColor.IsMatch(txtSender2Color.Text)
+            & rexColor.IsMatch(txtSenderTColor.Text)
+            & rexOpacity.IsMatch(txtOpacity.Text))
+        {
+            // Save the prefs
+            Preferences.Set("Sender1Color", txtSender1Color.Text);
+            Preferences.Set("Sender2Color", txtSender2Color.Text);
+            Preferences.Set("SenderTColor", txtSenderTColor.Text);
+            Preferences.Set("Opacity",      txtOpacity.Text);
+
+            // Reload the prefs
+            PrefsHander();
+
+            // Refresh the colors
+            if (chatList.Count > 0)
+            {
+                var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
+                foreach (ChatLine aChatLine in chatList)
+                {
+                    aChatLine.ChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? App.thePrefs.Sender1ColorOpacity : App.thePrefs.Sender2ColorOpacity);
+                    aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
+                    aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
+                }
+
+                // Refresh the collection view
+                btnTriggerSearchElement_Clicked(null, null);
+
+                // Refresh the Graphs
+                UpdateCharts();
+            }
+            // Says it's ok
+            this.DisplayAlert("Saved", "Settings saved", "OK");
+        }
+        else
+        {
+            this.DisplayAlert("Warning", "Invalid input. Colors must be hexa color, e.g. : #9a0089. Opacity in a hexa value, from 00 to FF", "OK");
+        }
+    }
+    #endregion
 }
 
