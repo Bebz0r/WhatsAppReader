@@ -62,6 +62,10 @@ public partial class MainPage : ContentPage
     // Index to display lines
     int LineIndex = 0;
 
+    // Counters
+    int realLines = 0;
+    int keptLines = 0;
+
     // Display limit
     readonly int DisplayLimit = 100;
 
@@ -69,6 +73,10 @@ public partial class MainPage : ContentPage
     List<string> invalidLines = new();
     List<ChatLine> chatList   = new();
 
+    // TODO:
+    // File Loading Perfs
+    // Data Label Labeller
+    // Scrollable list
     public MainPage()
 	{
 		InitializeComponent();
@@ -105,7 +113,101 @@ public partial class MainPage : ContentPage
         txtOpacity.Text        = App.thePrefs.Opacity;
         txtDateFormat.Text     = App.thePrefs.DateFormat;
     }
-    
+
+    // Handle the file
+    private void FileHandler(Stream s)
+    {
+        // Reset the Lists
+        invalidLines = new List<string>();
+        chatList = new List<ChatLine>();
+
+        // Reset the counts
+        realLines = 0;
+        keptLines = 0;
+
+        // Open the file
+        using StreamReader sr = new(s, Encoding.GetEncoding("UTF-8"));
+
+        // Read the total lines
+        int totalLines = 0;
+        while ((sr.ReadLine()) != null)
+            totalLines++;
+
+        // Reset position
+        s.Position = 0;
+        sr.DiscardBufferedData();        // reader now reading from position 0
+
+        // Read first line to skip it
+        string currentLine;
+        currentLine = sr.ReadLine();
+        realLines++;
+
+        while ((currentLine = sr.ReadLine()) != null)
+        {
+            realLines++;
+
+            // Progress bar
+            prgBarLines.ProgressTo((double)realLines / totalLines, 1, Easing.Linear);
+
+            // Update progress on the UI :
+            MainThread.BeginInvokeOnMainThread(() => { lblProgress.Text = $"{Math.Round((double)realLines / totalLines * 100)}%"; });
+
+            //  -      : The next part
+            Regex rex = new($"{MainPage.RegExHandler(App.thePrefs.DateFormat)} - ");
+
+            // Input Validation
+            if (rex.IsMatch(currentLine))
+            {
+                keptLines++;
+
+                // Parse the Line :
+                // 5/29/22, 19:05 - Beb*: Va falloir négocier ça avec un bon verre de vin ou une bonne mousse (le mot élégant pour dire "bière", si mes manuels sont à jour) : je ne suis pas sur que 100% sobre, ce soit super intéressant 😅
+
+                // Date > M/d/YY, HH:mm
+                string datetimeString = currentLine.Split('-')[0];
+                DateTime dateTime = DateTime.ParseExact(datetimeString, $"{App.thePrefs.DateFormat}, HH:mm ", CultureInfo.InvariantCulture);
+
+                // Cut the Date part, and the "- " just before the sender
+                // This uses the range operator : [number..] : .. means till the rest
+                currentLine = currentLine[(datetimeString.Length + 1)..].TrimStart();
+
+                // Author is the first part of  : 
+                string Sender = currentLine.Split(':')[0];
+
+                // Message - +2 gets rid of the ": "
+                // This uses the range operator : [number..] : .. means till the rest
+                string Message = currentLine[(Sender.Length + 2)..];
+
+                ChatLine aChatLine = new()
+                {
+                    Line = realLines,
+                    DateTime = dateTime,
+                    Sender = Sender,
+                    Message = Message,
+                    IsMedia = (Message == "<Media omitted>" | Message == "<Médias omis>"),
+                    WordCount = (Message == "<Media omitted>" | Message == "<Médias omis>" ? 0 : CountWords(Message))
+                };
+
+                chatList.Add(aChatLine);
+            }
+            else
+            {
+                invalidLines.Add($"[{realLines}] : {currentLine}");
+                // Not valid. Must by a new line from a message : add it to the previous element in the List<>
+                if (chatList.Count > 1)
+                {
+                    //ChatLine lastChatLine = chatList[chatList.Count - 1];
+                    // ^ Equivalent to v
+                    ChatLine lastChatLine = chatList[^1];
+                    lastChatLine.Message = $"{lastChatLine.Message}<br/>{currentLine}";
+                }
+            }
+        }
+
+        // Once done, refresh the UI
+        MainThread.BeginInvokeOnMainThread(() => { PerformPostLoadActions(); });
+    }
+
     // Display a line in the UI
     private void DisplayLine(int index)
     {
@@ -170,18 +272,29 @@ public partial class MainPage : ContentPage
     }
 
     // Perform post load actions : show/hide stuff, change colors, etc...
-    private void PerformPostLoadActions(int keptLines, int realLines)
+    private void PerformPostLoadActions()
     {
+        // enable/disable the random button
+        btnRandomLine.Source =    (chatList.Count > 0 ? "randomline.png" : "randomline_disabled.png");
+        btnRandomLine.IsEnabled = (chatList.Count > 0);
+        // enable/disable the search line button
+        btnSearchLine.IsEnabled = (chatList.Count > 0);
+        btnSearchLine.Source =    (chatList.Count > 0 ? "search.png" : "search_disabled.png");
+        txtLineNumber.IsEnabled = (chatList.Count > 0);
+
+        // display/hide the main Message counter
+        frmCount.IsVisible = (chatList.Count > 0);
+        // display/hide the log in the Load page and set its color (green / red) accordingly
+        frmLogs.IsVisible = true;
+        frmLogs.BackgroundColor = (chatList.Count > 0 ? Color.FromArgb("7db497") : Color.FromArgb("b47d7d"));
+
         // If Values are found
         if (chatList.Count > 0)
         {
             // Log the counts in the Load
-            frmCount.IsVisible = true;
             lblCount.Text = $"found {keptLines:n0} messages";
 
             // Display the logs
-            frmLogs.IsVisible = true;
-            frmLogs.BackgroundColor = Color.FromArgb("7db497");
             lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
 
             // Display the Log in the List view
@@ -248,15 +361,14 @@ public partial class MainPage : ContentPage
             // Set the dates current values
             dpStart.Date = chatList.Last().DateTime;
             dpEnd.Date = chatList.Last().DateTime;
+
+            // Select a random line
+            BtnRandomLine_Clicked(null, null);
+            // Refresh the Graphs
+            UpdateCharts();
         }
         else
         {
-            // Log the counts in the Load
-            frmCount.IsVisible = false;
-
-            // Display the logs
-            frmLogs.IsVisible = true;
-            frmLogs.BackgroundColor = Color.FromArgb("b47d7d");
             lblLogs.Text = $"no valid line found - check the file";
         }
     }
@@ -370,82 +482,11 @@ public partial class MainPage : ContentPage
             var result = await FilePicker.Default.PickAsync(options);
             if (result != null)
             {
-                invalidLines = new List<string>();
-                chatList = new List<ChatLine>();
-
                 // Do Stuff with the file
                 Stream s = await result.OpenReadAsync();
-                int realLines = 0;
-                int keptLines = 0;
 
-                //using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("iso-8859-1")))
-                using (StreamReader sr = new(s, Encoding.GetEncoding("UTF-8")))
-                {
-                    string currentLine;
-
-
-                    // Read first line to skip it
-                    currentLine = sr.ReadLine();
-                    realLines++;
-
-                    while ((currentLine = sr.ReadLine()) != null)
-                    {
-                        realLines++;
-                        //  -      : The next part
-                        Regex rex = new($"{MainPage.RegExHandler(App.thePrefs.DateFormat)} - ");
-
-                        // Input Validation
-                        if (rex.IsMatch(currentLine))
-                        {
-                            keptLines++;
-
-                            // Parse the Line :
-                            // 5/29/22, 19:05 - Beb*: Va falloir négocier ça avec un bon verre de vin ou une bonne mousse (le mot élégant pour dire "bière", si mes manuels sont à jour) : je ne suis pas sur que 100% sobre, ce soit super intéressant 😅
-
-                            // Date > M/d/YY, HH:mm
-                            string datetimeString = currentLine.Split('-')[0];
-                            DateTime dateTime = DateTime.ParseExact(datetimeString, $"{App.thePrefs.DateFormat}, HH:mm ", CultureInfo.InvariantCulture);
-
-                            // Cut the Date part, and the "- " just before the sender
-                            // This uses the range operator : [number..] : .. means till the rest
-                            currentLine = currentLine[(datetimeString.Length + 1)..].TrimStart();
-
-                            // Author is the first part of  : 
-                            string Sender = currentLine.Split(':')[0];
-
-                            // Message - +2 gets rid of the ": "
-                            // This uses the range operator : [number..] : .. means till the rest
-                            string Message = currentLine[(Sender.Length + 2)..];
-
-                            ChatLine aChatLine = new()
-                            {
-                                Line = realLines,
-                                DateTime = dateTime,
-                                Sender = Sender,
-                                Message = Message,
-                                IsMedia = (Message == "<Media omitted>" | Message == "<Médias omis>"),
-                                WordCount = (Message == "<Media omitted>" | Message == "<Médias omis>" ? 0 : CountWords(Message))
-                            };
-
-                            chatList.Add(aChatLine);
-                        }
-                        else
-                        {
-                            invalidLines.Add($"[{realLines}] : {currentLine}");
-                            // Not valid. Must by a new line from a message : add it to the previous element in the List<>
-                            if (chatList.Count > 1)
-                            {
-                                //ChatLine lastChatLine = chatList[chatList.Count - 1];
-                                // ^ Equivalent to v
-                                ChatLine lastChatLine = chatList[^1];
-                                lastChatLine.Message = $"{lastChatLine.Message}<br/>{currentLine}";
-                            }
-                        }
-                    }
-                }
-
-                // Perform post load actions : show/hide stuff, change colors, etc...
-                PerformPostLoadActions(keptLines, realLines);
+                // Treat the file
+                await Task.Run(() => { FileHandler(s); });
             }
             else
             {
@@ -453,22 +494,6 @@ public partial class MainPage : ContentPage
                 frmLogs.IsVisible = true;
                 frmLogs.BackgroundColor = Color.FromArgb("b47d7d");
                 lblLogs.Text = $"aborted by the user";
-            }
-
-            // enable/disable the search button
-            btnRandomLine.Source = (chatList.Count > 0 ? "randomline.png" : "randomline_disabled.png");
-            btnRandomLine.IsEnabled = (chatList.Count > 0);
-            btnSearchLine.IsEnabled = (chatList.Count > 0);
-            btnSearchLine.Source = (chatList.Count > 0 ? "search.png" : "search_disabled.png");
-            txtLineNumber.IsEnabled = (chatList.Count > 0);
-
-            // If lines are found
-            if (chatList.Count > 0)
-            {
-                // Select a random line
-                BtnRandomLine_Clicked(null, null);
-                // Refresh the Graphs
-                UpdateCharts();
             }
         }
         catch(Exception ex)
@@ -605,7 +630,6 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
-            //DataLabelsFormatter = 
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
         };
 

@@ -52,9 +52,13 @@
         <StackLayout x:Name="slLoad" IsVisible="True" Margin="10">
             <!-- Load File -->
             <StackLayout HorizontalOptions="Center" Spacing="10">
+                <!-- Button to Load File -->
                 <ImageButton x:Name="btnLoadFile"  HeightRequest="120" Source="loadfile.png" Clicked="BtnLoadFile_Clicked" HorizontalOptions="Center" />
                 <Label Text="load a WhatsApp file" HorizontalTextAlignment="Center"/>
-
+                <!-- Progress bar -->
+                <ProgressBar x:Name="prgBarLines" IsVisible="true" Progress="0.0" ProgressColor="#9a0089" />
+                <Label x:Name="lblProgress"       Text="-%" FontSize="Micro" HorizontalTextAlignment="Center"/>
+                <!-- Messages loaded -->
                 <Frame x:Name="frmCount" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="#9a0089" IsVisible="false" HasShadow="False">
                     <Label x:Name="lblCount" Text="- count -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
                 </Frame>
