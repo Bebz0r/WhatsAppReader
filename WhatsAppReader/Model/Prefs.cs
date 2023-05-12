@@ -40,5 +40,8 @@ namespace WhatsAppReader.Model
 
         // Opacity
         public string Opacity { get; set; }
+
+        // DateTime Format
+        public string DateFormat { get; set; }
     }
 }

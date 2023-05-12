@@ -175,31 +175,40 @@
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
         <!-- Settings -->
         <StackLayout x:Name="slSettings" IsVisible="False" Margin="10">
-            <Label Text="Settings" FontSize="Micro"    FontFamily="Typewriter" HorizontalOptions="Center"/>
             <!-- Date & Reason -->
             <Grid ColumnSpacing="10">
                 <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
+                <!-- DateTime Format -->
+                <Label Grid.Row="0" Grid.Column="0"  HorizontalOptions="End"                             Text="date format :"                             FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="0" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtDateFormat"   Text="M/d/yy"        Placeholder="M/d/yy"        FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="btnSaveSettings_Clicked"/>
+                <!-- DateTime Format Templates -->
+                <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
+                    <Button x:Name="btnDateFormat_Mdy"      Text="M/d/yy"     WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089" Clicked="btnDateFormat_Mdy_Clicked"/>
+                    <Button x:Name="btnDateFormat_ddMMyyyy" Text="dd/MM/yyyy" WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089"  Clicked="btnDateFormat_ddMMyyyy_Clicked"/>
+                </StackLayout>
                 <!-- Sender 1 -->
-                <Label Grid.Row="0" Grid.Column="0"  HorizontalOptions="End"                             Text="Sender1 color :"               FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="0" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender1Color" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
-                <!-- Sender 2 -->
-                <Label Grid.Row="1" Grid.Column="0"  HorizontalOptions="End"                             Text="Sender2 color :"               FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="1" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender2Color" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
-                <!-- Total -->
-                <Label Grid.Row="2" Grid.Column="0"  HorizontalOptions="End"                             Text="Total color :"                 FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="2" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSenderTColor" Text="#"         Placeholder="Color" FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
-                <!-- Total -->
-                <Label Grid.Row="3" Grid.Column="0"  HorizontalOptions="End"                             Text="Fill opacity :"                FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="3" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtOpacity"      Text="1"         Placeholder="55"    FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="150" VerticalOptions="Center"/>
+                <Label Grid.Row="2" Grid.Column="0"  HorizontalOptions="End"                              Text="sender1 color :"                           FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="2" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender1Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="btnSaveSettings_Clicked"/>
+                <!-- Sender 2 -->                                                                                                                          
+                <Label Grid.Row="3" Grid.Column="0"  HorizontalOptions="End"                              Text="sender2 color :"                           FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="3" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender2Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="btnSaveSettings_Clicked"/>
+                <!-- Total -->                                                                                                                             
+                <Label Grid.Row="4" Grid.Column="0"  HorizontalOptions="End"                              Text="total color :"                             FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="4" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSenderTColor"  Text="-"         Placeholder="Color"             FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="btnSaveSettings_Clicked"/>
+                <!-- Total -->                                                                                                                             
+                <Label Grid.Row="5" Grid.Column="0"  HorizontalOptions="End"                              Text="fill opacity :"                            FontSize="Small" VerticalOptions="Center"/>
+                <Entry Grid.Row="5" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtOpacity"       Text="-"             Placeholder="55"            FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="btnSaveSettings_Clicked"/>
             </Grid>
 
             <Grid Margin="0,30,0,0">

@@ -61,8 +61,10 @@ public partial class MainPage : ContentPage
 
     // Index to display lines
     int LineIndex = 0;
+
     // Display limit
     int DisplayLimit = 100;
+
     // Data storage
     List<string> invalidLines = new List<string>();
     List<ChatLine> chatList = new List<ChatLine>();
@@ -83,23 +85,28 @@ public partial class MainPage : ContentPage
 
     #region HELPERS
     // HELPERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Load prefs and push them in the UI
     private void PrefsHander()
     {
         // Load the prefs
         App.thePrefs = new Prefs
         {
-            Sender1Color = Preferences.Get("Sender1Color", "#1c3939"),
-            Sender2Color = Preferences.Get("Sender2Color", "#9a0089"),
-            SenderTColor = Preferences.Get("SenderTColor", "#0000cc"),
-            Opacity      = Preferences.Get("Opacity", "55")
+            Sender1Color   = Preferences.Get("Sender1Color", "#1c3939"),
+            Sender2Color   = Preferences.Get("Sender2Color", "#9a0089"),
+            SenderTColor   = Preferences.Get("SenderTColor", "#0000cc"),
+            Opacity        = Preferences.Get("Opacity", "55"),
+            DateFormat     = Preferences.Get("DateFormat",  "M/d/yy")
         };
 
         // Bind the prefs
-        txtSender1Color.Text = App.thePrefs.Sender1Color;
-        txtSender2Color.Text = App.thePrefs.Sender2Color;
-        txtSenderTColor.Text = App.thePrefs.SenderTColor;
-        txtOpacity.Text      = App.thePrefs.Opacity;
+        txtSender1Color.Text   = App.thePrefs.Sender1Color;
+        txtSender2Color.Text   = App.thePrefs.Sender2Color;
+        txtSenderTColor.Text   = App.thePrefs.SenderTColor;
+        txtOpacity.Text        = App.thePrefs.Opacity;
+        txtDateFormat.Text     = App.thePrefs.DateFormat;
     }
+    
+    // Display a line in the UI
     private void DisplayLine(int index)
     {
         // Get the line
@@ -126,6 +133,134 @@ public partial class MainPage : ContentPage
         btnMoveNextFull.Source     = (index == chatList.Count - 1 ? "movefull_disabled.png" : "movefull.png");
     }
 
+    // Take DateTime format and return the resulting regex
+    private string RegExHandler(string theFormat)
+    {
+        // RegEx :
+        // ^       : Start of the string
+        // \d{1,2} : Digit, 1 or 2
+        // /       : the / character
+        // \d{2}   : Exactly 2 digits
+
+        //string datePart = @"\d{1,2}/\d{1,2}/\d{2}";
+        string datePart = theFormat;
+
+        // Note : Replace is case sensitive
+
+        // Days with d is a specific pattern : replace it with x
+        datePart = datePart.Replace("d", "x");
+        // Days
+        datePart = datePart.Replace("xx", @"\d{2}");
+        datePart = datePart.Replace("x",  @"\d{1,2}");
+        // Months
+        datePart = datePart.Replace("MM", @"\d{2}");
+        datePart = datePart.Replace("M",  @"\d{1,2}");
+        // Years
+        datePart = datePart.Replace("yyyy", @"\d{4}");
+        datePart = datePart.Replace("yy",   @"\d{2}");
+
+        // Delimiter part (fixed - at least for now)
+        string delimiterPart = ", ";
+        // Hour part (fixed - at least for now)
+        string hourPart = @"\d{2}:\d{2}";
+
+        // Final Regex
+        string finalRegex = $"^{datePart}{delimiterPart}{hourPart}";
+        return finalRegex;
+    }
+
+    // Perform post load actions : show/hide stuff, change colors, etc...
+    private void PerformPostLoadActions(int keptLines, int realLines)
+    {
+        // If Values are found
+        if (chatList.Count > 0)
+        {
+            // Log the counts in the Load
+            frmCount.IsVisible = true;
+            lblCount.Text = $"found {keptLines:n0} messages";
+
+            // Display the logs
+            frmLogs.IsVisible = true;
+            frmLogs.BackgroundColor = Color.FromArgb("7db497");
+            lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
+
+            // Display the Log in the List view
+            frmList.IsVisible = true;
+
+            // ====================================================
+            // COLOR SETTER
+            // Reload the prefs (colors) in case the previous run overwrote them
+            PrefsHander();
+
+            // Set the colors depending on the sender and senders 1 or 2
+            var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
+            foreach (ChatLine aChatLine in chatList)
+            {
+                // Set the color based on the sender
+                string theChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? App.thePrefs.Sender1ColorOpacity : App.thePrefs.Sender2ColorOpacity);
+
+                // Override colors if Beb or Chaton
+                if (aChatLine.Sender == "Beb*")
+                {
+                    // Set the Chat Color (Opa)
+                    theChatColor = "#559a0089";
+                    // Set the settings accordingly - without overriding the preferences
+                    if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
+                    {
+                        txtSender1Color.Text = theChatColor.Replace("#55", "#");
+                        App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#"); ;
+                    }
+                    else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
+                    {
+                        txtSender2Color.Text = theChatColor.Replace("#55", "#"); ;
+                        App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#"); ;
+                    }
+                }
+                else if (aChatLine.Sender == "😻 Chaton ❤️")
+                {
+                    // Set the color (Opa)
+                    theChatColor = "#551c4040";
+                    // Set the settings accordingly - without overriding the preferences
+                    if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
+                    {
+                        txtSender1Color.Text = theChatColor.Replace("#55", "#");
+                        App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#");
+                    }
+                    else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
+                    {
+                        txtSender2Color.Text = theChatColor.Replace("#55", "#");
+                        App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#");
+                    }
+                }
+
+                // Set the colors and who is who
+                aChatLine.ChatColor = theChatColor;
+                aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
+                aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
+            }
+
+            // Set the dates tresholds - this will trigger the dp_DateSelected methods
+            dpStart.MinimumDate = chatList.First().DateTime;
+            dpStart.MaximumDate = chatList.Last().DateTime;
+            dpEnd.MinimumDate = chatList.First().DateTime;
+            dpEnd.MaximumDate = chatList.Last().DateTime;
+
+            // Set the dates current values
+            dpStart.Date = chatList.Last().DateTime;
+            dpEnd.Date = chatList.Last().DateTime;
+        }
+        else
+        {
+            // Log the counts in the Load
+            frmCount.IsVisible = false;
+
+            // Display the logs
+            frmLogs.IsVisible = true;
+            frmLogs.BackgroundColor = Color.FromArgb("b47d7d");
+            lblLogs.Text = $"no valid line found - check the file";
+        }
+    }
+    
     // Count words
     public static int CountWords(string s)
     {
@@ -216,195 +351,125 @@ public partial class MainPage : ContentPage
     // Load the WhatsApp File
     private async void btnLoadFile_Clicked(object sender, EventArgs e)
 	{
-        // Open the file picker
-        FilePickerFileType customFileType = new FilePickerFileType(
-            new Dictionary<DevicePlatform, IEnumerable<string>>
-            {
+        try
+        {
+            // Open the file picker
+            FilePickerFileType customFileType = new FilePickerFileType(
+                new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
                 { DevicePlatform.Android, new[] { "text/*" } }, // MIME type
                 { DevicePlatform.WinUI, new[] { ".txt", ".txt" } }, // file extension
-            });
+                });
 
-        PickOptions options = new()
-        {
-            PickerTitle = "Please select a txt file",
-            FileTypes = customFileType,
-        };
-
-        var result = await FilePicker.Default.PickAsync(options);
-        if (result != null)
-        {
-            invalidLines = new List<string>();
-            chatList = new List<ChatLine>();
-
-            // Do Stuff with the file
-            Stream s = await result.OpenReadAsync();
-
-            //using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("iso-8859-1")))
-            using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("UTF-8")))
+            PickOptions options = new()
             {
-                string currentLine;
+                PickerTitle = "Please select a txt file",
+                FileTypes = customFileType,
+            };
+
+            var result = await FilePicker.Default.PickAsync(options);
+            if (result != null)
+            {
+                invalidLines = new List<string>();
+                chatList = new List<ChatLine>();
+
+                // Do Stuff with the file
+                Stream s = await result.OpenReadAsync();
                 int realLines = 0;
                 int keptLines = 0;
 
-                // Read first line to skip it
-                currentLine = sr.ReadLine();
-                realLines++;
-                
-                while ((currentLine = sr.ReadLine()) != null)
+                //using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("iso-8859-1")))
+                using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("UTF-8")))
                 {
+                    string currentLine;
+
+
+                    // Read first line to skip it
+                    currentLine = sr.ReadLine();
                     realLines++;
-                    // RegEx :
-                    // ^       : Start of the string
-                    // \d{1,2} : Digit, 1 or 2 : the month
-                    // /       : the / character
-                    // \d{1,2} : Digit, 1 or 2 : the day
-                    // /       : the / character
-                    // \d{2}   : Exactly 2 digits : the year
-                    // ,       : The coma then the space
-                    // \d{2}   : Exactly 2 digits : the hours are HH
-                    // :       : the : character
-                    // \d{2}   : Exactly 2 digits : the minutes
-                    //  -      : The next part
-                    Regex rex = new Regex(@"^\d{1,2}/\d{1,2}/\d{2}, \d{2}:\d{2} - ");
 
-                    // Input Validation
-                    if (rex.IsMatch(currentLine))
+                    while ((currentLine = sr.ReadLine()) != null)
                     {
-                        keptLines++;
+                        realLines++;
+                        //  -      : The next part
+                        Regex rex = new Regex($"{RegExHandler(App.thePrefs.DateFormat)} - ");
 
-                        // Parse the Line :
-                        // 5/29/22, 19:05 - Beb*: Va falloir négocier ça avec un bon verre de vin ou une bonne mousse (le mot élégant pour dire "bière", si mes manuels sont à jour) : je ne suis pas sur que 100% sobre, ce soit super intéressant 😅
-
-                        // Date > M/d/YY, HH:mm
-                        string datetimeString = currentLine.Split('-')[0];
-                        DateTime dateTime = DateTime.ParseExact(datetimeString, "M/d/yy, HH:mm ", CultureInfo.InvariantCulture);
-
-                        // Cut the Date part, and the "- " just before the sender 
-                        currentLine = currentLine.Substring(datetimeString.Length + 1).TrimStart();
-
-                        // Author is the first part of  : 
-                        string Sender = currentLine.Split(':')[0];
-
-                        // Message - +2 gets rid of the ": "
-                        string Message = currentLine.Substring(Sender.Length + 2);
-
-                        ChatLine aChatLine = new ChatLine
+                        // Input Validation
+                        if (rex.IsMatch(currentLine))
                         {
-                            Line = realLines,
-                            DateTime = dateTime,
-                            Sender = Sender,
-                            Message = Message,
-                            IsMedia = (Message == "<Media omitted>"),
-                            WordCount = (Message == "<Media omitted>" ? 0 : CountWords(Message))
-                        };
+                            keptLines++;
 
-                        chatList.Add(aChatLine);
-                    }
-                    else
-                    {
-                        invalidLines.Add($"[{realLines}] : {currentLine}");
-                        // Not valid. Must by a new line from a message : add it to the previous element in the List<>
-                        if (chatList.Count > 1)
+                            // Parse the Line :
+                            // 5/29/22, 19:05 - Beb*: Va falloir négocier ça avec un bon verre de vin ou une bonne mousse (le mot élégant pour dire "bière", si mes manuels sont à jour) : je ne suis pas sur que 100% sobre, ce soit super intéressant 😅
+
+                            // Date > M/d/YY, HH:mm
+                            string datetimeString = currentLine.Split('-')[0];
+                            DateTime dateTime = DateTime.ParseExact(datetimeString, $"{App.thePrefs.DateFormat}, HH:mm ", CultureInfo.InvariantCulture);
+
+                            // Cut the Date part, and the "- " just before the sender 
+                            currentLine = currentLine.Substring(datetimeString.Length + 1).TrimStart();
+
+                            // Author is the first part of  : 
+                            string Sender = currentLine.Split(':')[0];
+
+                            // Message - +2 gets rid of the ": "
+                            string Message = currentLine.Substring(Sender.Length + 2);
+
+                            ChatLine aChatLine = new ChatLine
+                            {
+                                Line = realLines,
+                                DateTime = dateTime,
+                                Sender = Sender,
+                                Message = Message,
+                                IsMedia = (Message == "<Media omitted>"),
+                                WordCount = (Message == "<Media omitted>" ? 0 : CountWords(Message))
+                            };
+
+                            chatList.Add(aChatLine);
+                        }
+                        else
                         {
-                            ChatLine lastChatLine = chatList[chatList.Count - 1];
-                            lastChatLine.Message = $"{lastChatLine.Message}<br/>{currentLine}";
+                            invalidLines.Add($"[{realLines}] : {currentLine}");
+                            // Not valid. Must by a new line from a message : add it to the previous element in the List<>
+                            if (chatList.Count > 1)
+                            {
+                                ChatLine lastChatLine = chatList[chatList.Count - 1];
+                                lastChatLine.Message = $"{lastChatLine.Message}<br/>{currentLine}";
+                            }
                         }
                     }
                 }
 
-                // Display results
-                frmCount.IsVisible = (chatList.Count > 0);
-                lblCount.Text = $"found {keptLines:n0} messages";
+                // Perform post load actions : show/hide stuff, change colors, etc...
+                PerformPostLoadActions(keptLines, realLines);
+            }
+            else
+            {
+                // Display the logs
+                frmLogs.IsVisible = true;
+                frmLogs.BackgroundColor = Color.FromArgb("b47d7d");
+                lblLogs.Text = $"aborted by the user";
+            }
 
-                frmLogs.IsVisible = (chatList.Count > 0);
-                frmLogs.BackgroundColor = Color.FromArgb("7db497");
-                lblLogs.Text = $"found {realLines:n0} line{(realLines > 1 ? "s" : "")} / kept {keptLines:n0} valid";
+            // enable/disable the search button
+            btnRandomLine.Source = (chatList.Count > 0 ? "randomline.png" : "randomline_disabled.png");
+            btnRandomLine.IsEnabled = (chatList.Count > 0);
+            btnSearchLine.IsEnabled = (chatList.Count > 0);
+            btnSearchLine.Source = (chatList.Count > 0 ? "search.png" : "search_disabled.png");
+            txtLineNumber.IsEnabled = (chatList.Count > 0);
 
-                frmList.IsVisible = true;
-
-                // Set Colors and the Calendar dates as the last ones and initiate the List filter
-                // This will trigger the dp_DateSelected methods
-                if (chatList.Count > 0)
-                {
-                    // ====================================================
-                    // COLOR SETTER
-                    // Reload the prefs (colors) in case the previous run overwrote them
-                    PrefsHander();
-
-                    // Set the colors depending on the sender and senders 1 or 2
-                    var senderNamesDistinct = chatList.Select(c => c.Sender).Distinct().ToList();
-                    foreach (ChatLine aChatLine in chatList)
-                    {
-                        // Set the color based on the sender
-                        string theChatColor = (aChatLine.Sender == senderNamesDistinct.ElementAt(0) ? App.thePrefs.Sender1ColorOpacity : App.thePrefs.Sender2ColorOpacity);
-
-                        // Override colors if Beb or Chaton
-                        if (aChatLine.Sender == "Beb*")
-                        {
-                            // Set the Chat Color (Opa)
-                            theChatColor = "#559a0089";
-                            // Set the settings accordingly - without overriding the preferences
-                            if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
-                            {
-                                txtSender1Color.Text = theChatColor.Replace("#55", "#");
-                                App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#"); ;
-                            }
-                            else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
-                            {
-                                txtSender2Color.Text = theChatColor.Replace("#55", "#"); ;
-                                App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#"); ;
-                            }
-                        }
-                        else if (aChatLine.Sender == "😻 Chaton ❤️")
-                        {
-                            // Set the color (Opa)
-                            theChatColor = "#551c4040";
-                            // Set the settings accordingly - without overriding the preferences
-                            if (aChatLine.Sender == senderNamesDistinct.ElementAt(0))
-                            {
-                                txtSender1Color.Text = theChatColor.Replace("#55", "#");
-                                App.thePrefs.Sender1Color = theChatColor.Replace("#55", "#");
-                            }
-                            else if (aChatLine.Sender == senderNamesDistinct.ElementAt(1))
-                            {
-                                txtSender2Color.Text = theChatColor.Replace("#55", "#");
-                                App.thePrefs.Sender2Color = theChatColor.Replace("#55", "#");
-                            }
-                        }
-
-                        // Set the colors and who is who
-                        aChatLine.ChatColor = theChatColor;
-                        aChatLine.isSender1 = (aChatLine.Sender == senderNamesDistinct.ElementAt(0));
-                        aChatLine.isSender2 = (aChatLine.Sender == senderNamesDistinct.ElementAt(1));
-                    }
-
-                    // Set the dates tresholds
-                    dpStart.MinimumDate = chatList.First().DateTime;
-                    dpStart.MaximumDate = chatList.Last().DateTime;
-                    dpEnd.MinimumDate   = chatList.First().DateTime;
-                    dpEnd.MaximumDate   = chatList.Last().DateTime;
-
-                    // Set the dates current values
-                    dpStart.Date = chatList.Last().DateTime;
-                    dpEnd.Date = chatList.Last().DateTime;
-                }
+            // If lines are found
+            if (chatList.Count > 0)
+            {
+                // Select a random line
+                btnRandomLine_Clicked(null, null);
+                // Refresh the Graphs
+                UpdateCharts();
             }
         }
-
-        // enable/disable the search button
-        btnRandomLine.Source = (chatList.Count > 0 ? "randomline.png" : "randomline_disabled.png");
-        btnRandomLine.IsEnabled = (chatList.Count > 0);
-        btnSearchLine.IsEnabled = (chatList.Count > 0);
-        btnSearchLine.Source = (chatList.Count > 0 ? "search.png" : "search_disabled.png");
-        txtLineNumber.IsEnabled = (chatList.Count > 0);
-
-        // If lines are found
-        if (chatList.Count > 0)
+        catch(Exception ex)
         {
-            // Select a random line
-            btnRandomLine_Clicked(null, null);
-            // Refresh the Graphs
-            UpdateCharts();
+            await DisplayAlert("Error", ex.Message, "OK");
         }
     }
 
@@ -537,6 +602,7 @@ public partial class MainPage : ContentPage
             Stroke = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)) { StrokeThickness = 2 },
             Fill = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color)),
             DataLabelsSize = 20,
+            //DataLabelsFormatter = 
             DataLabelsPaint = new SolidColorPaint(SKColor.Parse(App.thePrefs.Sender1Color))
         };
 
@@ -785,10 +851,11 @@ public partial class MainPage : ContentPage
             & rexOpacity.IsMatch(txtOpacity.Text))
         {
             // Save the prefs
-            Preferences.Set("Sender1Color", txtSender1Color.Text);
-            Preferences.Set("Sender2Color", txtSender2Color.Text);
-            Preferences.Set("SenderTColor", txtSenderTColor.Text);
-            Preferences.Set("Opacity",      txtOpacity.Text);
+            Preferences.Set("Sender1Color",   txtSender1Color.Text);
+            Preferences.Set("Sender2Color",   txtSender2Color.Text);
+            Preferences.Set("SenderTColor",   txtSenderTColor.Text);
+            Preferences.Set("Opacity",        txtOpacity.Text);
+            Preferences.Set("DateFormat",     txtDateFormat.Text);
 
             // Reload the prefs
             PrefsHander();
@@ -817,6 +884,19 @@ public partial class MainPage : ContentPage
         {
             this.DisplayAlert("Warning", "Invalid input. Colors must be hexa color, e.g. : #9a0089. Opacity in a hexa value, from 00 to FF", "OK");
         }
+    }
+
+
+    // M/d/yy clicked
+    private void btnDateFormat_Mdy_Clicked(object sender, EventArgs e)
+    {
+        txtDateFormat.Text = "M/d/yy";
+    }
+
+    // dd/MM/yyyy clicked
+    private void btnDateFormat_ddMMyyyy_Clicked(object sender, EventArgs e)
+    {
+        txtDateFormat.Text = "dd/MM/yyyy";
     }
     #endregion
 }
