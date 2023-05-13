@@ -17,7 +17,7 @@
         public string Message { get; set; }
         public bool IsMedia { get; set; }
         public int WordCount { get; set; }
-        public List<string> Emojis { get; set; }
+        public string Emojis { get; set; }
         public string ChatColor { get; set; }
         public Brush Background
         {

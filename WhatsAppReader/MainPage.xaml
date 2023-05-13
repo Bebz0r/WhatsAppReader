@@ -9,232 +9,241 @@
         <mct:StatusBarBehavior StatusBarColor = "#9a0089" />
     </ContentPage.Behaviors>
 
-    <StackLayout HorizontalOptions="Center">
-        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-        <!-- Menu -->
-        <Grid x:Name="slMenu" IsVisible="True" Margin="0,10,0,0" HorizontalOptions="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="10"/>
-                <RowDefinition Height="60"/>
-                <RowDefinition Height="50"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="70"/>
-                <ColumnDefinition Width="70"/>
-                <ColumnDefinition Width="70"/>
-                <ColumnDefinition Width="70"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Negative Margins to remove border -->
-            <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
-
-            <!-- Buttons -->
-            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"              WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnLoad_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"     WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnList_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnStats_Clicked"/>
-            <ImageButton Grid.Row="1" Grid.Column="3" x:Name="btnSettings"     Source="settings_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnSettings_Clicked"/>
-
-            <!-- Labels -->
-            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"     FontSize="Small" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"     FontSize="Small" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"    FontSize="Small" HorizontalTextAlignment="Center"/>
-            <Label       Grid.Row="2" Grid.Column="3" x:Name="lblMenuSettings" Text="settings" FontSize="Small" HorizontalTextAlignment="Center"/>
-
-            <!-- Underlines -->
-            <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"      HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
-            <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"      HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-            <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"     HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-            <BoxView     Grid.Row="3" Grid.Column="3" x:Name="bxSettings"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-        </Grid>
-
-        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-        <!-- Load -->
-        <StackLayout x:Name="slLoad" IsVisible="True" Margin="10">
-            <!-- Load File -->
-            <StackLayout HorizontalOptions="Center" Spacing="10">
-                <!-- Button to Load File -->
-                <ImageButton x:Name="btnLoadFile"  HeightRequest="120" Source="loadfile.png" Clicked="BtnLoadFile_Clicked" HorizontalOptions="Center" />
-                <Label Text="load a WhatsApp file" HorizontalTextAlignment="Center"/>
-                <!-- Progress bar -->
-                <ProgressBar x:Name="prgBarLines" IsVisible="true" Progress="0.0" ProgressColor="#9a0089" />
-                <Label x:Name="lblProgress"       Text="-%" FontSize="Micro" HorizontalTextAlignment="Center"/>
-                <!-- Messages loaded -->
-                <Frame x:Name="frmCount" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="#9a0089" IsVisible="false" HasShadow="False">
-                    <Label x:Name="lblCount" Text="- count -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
-                </Frame>
-            </StackLayout>
-            
-            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
-            
-            <!-- Random and Select Line -->
-            <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10">
-                <ImageButton x:Name="btnRandomLine" HeightRequest="50" WidthRequest="50" Source="randomline_disabled.png" IsEnabled="false" HorizontalOptions="Center" Clicked="BtnRandomLine_Clicked" />
-                <ImageButton x:Name="btnSearchLine" HeightRequest="50" WidthRequest="50"  Source="search_disabled.png" IsEnabled="false" Clicked="BtnSearchLine_Clicked"/>
-                <Entry       x:Name="txtLineNumber" Placeholder="file line number" FontSize="Small" Keyboard="Telephone" Completed="BtnSearchLine_Clicked"/>
-            </StackLayout>
-            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
-
-            <!-- Line Result -->
-            <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,10">
-                <Label       x:Name="lblLineNumber"    HorizontalOptions="Center" Text="#"          FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineDateTime"  HorizontalOptions="Center" Text="date"       FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineSender"    HorizontalOptions="Center" Text="sender"     FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineIsMedia"   HorizontalOptions="Center" Text="media ?"    FontSize="Micro" TextColor="Silver"/>
-                <Label       x:Name="lblLineMessage"   HorizontalOptions="Center" Text="message"    FontSize="Micro" TextColor="Silver" HorizontalTextAlignment="Center"/>
-                <Label       x:Name="lblLineWordCount" HorizontalOptions="Center" Text="word count" FontSize="Micro" TextColor="Silver"/>
-            </StackLayout>
-
-            <!-- Previous and Next -->
-            <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
-                <ImageButton x:Name="btnMovePreviousFull" HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="90"  IsEnabled="false" Clicked="BtnMovePreviousFull_Clicked"/>
-                <ImageButton x:Name="btnMovePrevious"     HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="90"  IsEnabled="false" Clicked="BtnMovePrevious_Clicked"/>
-                <ImageButton x:Name="btnMoveNext"         HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="-90" IsEnabled="false" Clicked="BtnMoveNext_Clicked"/>
-                <ImageButton x:Name="btnMoveNextFull"     HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="-90" IsEnabled="false" Clicked="BtnMoveNextFull_Clicked"/>
-            </StackLayout>
-
-            <!-- Log banner -->
-            <StackLayout HorizontalOptions="Center" Spacing="10">
-                <Frame x:Name="frmLogs" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false">
-                    <Label x:Name="lblLogs" Text="- logs -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
-                </Frame>
-            </StackLayout>
-        </StackLayout>
-
-        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-        <!-- List -->
-        <StackLayout x:Name="slList" IsVisible="False" Margin="10,-10,10,0">
-            <Grid ColumnSpacing="10" HorizontalOptions="Center" Margin="0,0,0,10">
+    <ScrollView>
+        <VerticalStackLayout>
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Menu -->
+            <Grid x:Name="slMenu" IsVisible="True" Margin="0,10,0,0" HorizontalOptions="Center">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="60"/>
                     <RowDefinition Height="50"/>
-                    <RowDefinition/>
-                    <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="70"/>
                 </Grid.ColumnDefinitions>
-                <SearchBar  Grid.Row="0" Grid.ColumnSpan="4" x:Name="schChat" Placeholder="Search Chat"  FontSize="Small" SearchButtonPressed="BtnTriggerSearchElement_Clicked"/>
-                
-                <Label      Grid.Row="1" Grid.Column="0"     Text="start :"   HorizontalOptions="End" VerticalOptions="Center"/>
-                <DatePicker Grid.Row="1" Grid.Column="1"     x:Name="dpStart" Format="dd MMM yyyy" DateSelected="BtnTriggerSearchElement_Clicked"/>
-                <Label      Grid.Row="1" Grid.Column="2"     Text="end :"     HorizontalOptions="End" VerticalOptions="Center"/>
-                <DatePicker Grid.Row="1" Grid.Column="3"     x:Name="dpEnd"   Format="dd MMM yyyy" DateSelected="BtnTriggerSearchElement_Clicked"/>
-                
-                <Frame Grid.Row="2" Grid.ColumnSpan="4" x:Name="frmList" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false" HorizontalOptions="Center">
-                    <Label x:Name="lblListCount" Text="-" FontSize="Micro" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
-                </Frame>
+
+                <!-- Negative Margins to remove border -->
+                <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
+
+                <!-- Buttons -->
+                <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"              WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnLoad_Clicked"/>
+                <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"     WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnList_Clicked"/>
+                <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnStats_Clicked"/>
+                <ImageButton Grid.Row="1" Grid.Column="3" x:Name="btnSettings"     Source="settings_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnSettings_Clicked"/>
+
+                <!-- Labels -->
+                <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"     FontSize="Small" HorizontalTextAlignment="Center"/>
+                <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"     FontSize="Small" HorizontalTextAlignment="Center"/>
+                <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"    FontSize="Small" HorizontalTextAlignment="Center"/>
+                <Label       Grid.Row="2" Grid.Column="3" x:Name="lblMenuSettings" Text="settings" FontSize="Small" HorizontalTextAlignment="Center"/>
+
+                <!-- Underlines -->
+                <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"      HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
+                <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"      HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+                <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"     HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+                <BoxView     Grid.Row="3" Grid.Column="3" x:Name="bxSettings"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
             </Grid>
-            
-            <CollectionView x:Name="cvChatLines" EmptyView="No chat lines">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="10"/>
-                            </Grid.ColumnDefinitions>
 
-                            <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding IsSender1}" VerticalOptions="Start" Margin="0,10,0,0"/>
-                            <Frame Grid.Column="1" Background="{Binding Background}" BorderColor="White" CornerRadius="10" Padding="8" Margin="2" >
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Grid.Row="0" Grid.Column="0"     Text="{Binding Sender}"      FontSize="Micro" />
-                                    <Label Grid.Row="0" Grid.Column="1"     Text="{Binding Line}"      FontSize="Micro" HorizontalTextAlignment="End"/>
-                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Message}"     FontSize="Micro" TextColor="White"/>
-                                    <Label Grid.Row="2" Grid.Column="1"     Text="{Binding DateTimeStr}" FontSize="Micro" TextColor="White" HorizontalTextAlignment="End"/>
-                                </Grid>
-                            </Frame>
-                            <Ellipse Grid.Column="2" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding IsSender2}" VerticalOptions="Start" Margin="0,10,0,0"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </StackLayout>
-        
-        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-        <!-- Stats -->
-        <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
-            <Label Text="messages sent" HorizontalOptions="Center"/>
-            <lvc:CartesianChart 
-                x:Name="crtBarMessagesSent"
-                HeightRequest="175"
-                LegendPosition="Bottom"/>
-            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
-
-            <Label Text="most Messages sent" HorizontalOptions="Center"/>
-            <lvc:CartesianChart 
-                x:Name="crtBarMostMessagesSent"
-                HeightRequest="175"
-                LegendPosition="Bottom"/>
-            <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
-
-            <Label Text="messages over time" HorizontalOptions="Center"/>
-            <lvc:CartesianChart 
-                x:Name="crtLineEvolution"
-                HeightRequest="175"
-                LegendPosition="Bottom"/>
-        </StackLayout>
-
-        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-        <!-- Settings -->
-        <StackLayout x:Name="slSettings" IsVisible="False" Margin="10">
-            <!-- Date & Reason -->
-            <Grid ColumnSpacing="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <!-- DateTime Format -->
-                <Label Grid.Row="0" Grid.Column="0"  HorizontalOptions="End"                             Text="date format :"                             FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="0" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtDateFormat"   Text="M/d/yy"        Placeholder="M/d/yy"        FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
-                <!-- DateTime Format Templates -->
-                <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
-                    <Button x:Name="btnDateFormat_Mdy"      Text="M/d/yy"     WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089" Clicked="BtnDateFormat_Mdy_Clicked"/>
-                    <Button x:Name="btnDateFormat_ddMMyyyy" Text="dd/MM/yyyy" WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089"  Clicked="BtnDateFormat_ddMMyyyy_Clicked"/>
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Load -->
+            <StackLayout x:Name="slLoad" IsVisible="True" Margin="10">
+                <!-- Load File -->
+                <StackLayout HorizontalOptions="Center" Spacing="10">
+                    <!-- Button to Load File -->
+                    <ImageButton x:Name="btnLoadFile"  HeightRequest="120" Source="loadfile.png" Clicked="BtnLoadFile_Clicked" HorizontalOptions="Center" />
+                    <Label Text="load a WhatsApp file" HorizontalTextAlignment="Center"/>
+                    <!-- Progress bar -->
+                    <ProgressBar x:Name="prgBarLines" IsVisible="true" Progress="0.0" ProgressColor="#9a0089" />
+                    <Label x:Name="lblProgress"       Text="-%" FontSize="Micro" HorizontalTextAlignment="Center"/>
+                    <!-- Messages loaded -->
+                    <Frame x:Name="frmCount" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="#9a0089" IsVisible="false" HasShadow="False">
+                        <Label x:Name="lblCount" Text="- count -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
+                    </Frame>
                 </StackLayout>
-                <!-- Sender 1 -->
-                <Label Grid.Row="2" Grid.Column="0"  HorizontalOptions="End"                              Text="sender1 color :"                           FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="2" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender1Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
-                <!-- Sender 2 -->                                                                                                                          
-                <Label Grid.Row="3" Grid.Column="0"  HorizontalOptions="End"                              Text="sender2 color :"                           FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="3" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender2Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
-                <!-- Total -->                                                                                                                             
-                <Label Grid.Row="4" Grid.Column="0"  HorizontalOptions="End"                              Text="total color :"                             FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="4" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSenderTColor"  Text="-"         Placeholder="Color"             FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
-                <!-- Total -->                                                                                                                             
-                <Label Grid.Row="5" Grid.Column="0"  HorizontalOptions="End"                              Text="fill opacity :"                            FontSize="Small" VerticalOptions="Center"/>
-                <Entry Grid.Row="5" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtOpacity"       Text="-"             Placeholder="55"            FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
-            </Grid>
 
-            <Grid Margin="0,30,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
 
-                <ImageButton Grid.Row="0" Source="settings.png" HeightRequest="100" WidthRequest="50"       BackgroundColor="Transparent" Clicked="BtnSaveSettings_Clicked"/>
-                <Label       Grid.Row="1" Text="save"           FontSize="Micro"    HorizontalOptions="Center"/>
-            </Grid>
-        </StackLayout>
-    </StackLayout>
+                <!-- Random and Select Line -->
+                <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10">
+                    <ImageButton x:Name="btnRandomLine" HeightRequest="50" WidthRequest="50" Source="randomline_disabled.png" IsEnabled="false" HorizontalOptions="Center" Clicked="BtnRandomLine_Clicked" />
+                    <ImageButton x:Name="btnSearchLine" HeightRequest="50" WidthRequest="50"  Source="search_disabled.png" IsEnabled="false" Clicked="BtnSearchLine_Clicked"/>
+                    <Entry       x:Name="txtLineNumber" Placeholder="file line number" FontSize="Small" Keyboard="Telephone" Completed="BtnSearchLine_Clicked"/>
+                </StackLayout>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+                <!-- Line Result -->
+                <StackLayout HorizontalOptions="Center" Orientation="Vertical" Spacing="10"  Margin="0,0,0,10">
+                    <Label       x:Name="lblLineNumber"    HorizontalOptions="Center" Text="#"          FontSize="Micro" TextColor="Silver"/>
+                    <Label       x:Name="lblLineDateTime"  HorizontalOptions="Center" Text="date"       FontSize="Micro" TextColor="Silver"/>
+                    <Label       x:Name="lblLineSender"    HorizontalOptions="Center" Text="sender"     FontSize="Micro" TextColor="Silver"/>
+                    <Label       x:Name="lblLineIsMedia"   HorizontalOptions="Center" Text="media ?"    FontSize="Micro" TextColor="Silver"/>
+                    <Label       x:Name="lblLineMessage"   HorizontalOptions="Center" Text="message"    FontSize="Micro" TextColor="Silver" HorizontalTextAlignment="Center"/>
+                    <Label       x:Name="lblLineWordCount" HorizontalOptions="Center" Text="word count" FontSize="Micro" TextColor="Silver"/>
+                </StackLayout>
+
+                <!-- Previous and Next -->
+                <StackLayout HorizontalOptions="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+                    <ImageButton x:Name="btnMovePreviousFull" HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="90"  IsEnabled="false" Clicked="BtnMovePreviousFull_Clicked"/>
+                    <ImageButton x:Name="btnMovePrevious"     HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="90"  IsEnabled="false" Clicked="BtnMovePrevious_Clicked"/>
+                    <ImageButton x:Name="btnMoveNext"         HeightRequest="40" WidthRequest="40"  Source="move_disabled.png"     Rotation="-90" IsEnabled="false" Clicked="BtnMoveNext_Clicked"/>
+                    <ImageButton x:Name="btnMoveNextFull"     HeightRequest="40" WidthRequest="40"  Source="movefull_disabled.png" Rotation="-90" IsEnabled="false" Clicked="BtnMoveNextFull_Clicked"/>
+                </StackLayout>
+
+                <!-- Log banner -->
+                <StackLayout HorizontalOptions="Center" Spacing="10">
+                    <Frame x:Name="frmLogs" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false">
+                        <Label x:Name="lblLogs" Text="- logs -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
+                    </Frame>
+                </StackLayout>
+            </StackLayout>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- List -->
+            <StackLayout x:Name="slList" IsVisible="False" Margin="10,-10,10,0">
+                <Grid ColumnSpacing="10" HorizontalOptions="Center" Margin="0,0,0,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="20"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <SearchBar  Grid.Row="0" Grid.ColumnSpan="4" x:Name="schChat" Placeholder="Search Chat"  FontSize="Small" SearchButtonPressed="BtnTriggerSearchElement_Clicked"/>
+
+                    <Label      Grid.Row="1" Grid.Column="0"     Text="start :"   HorizontalOptions="End" VerticalOptions="Center"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1"     x:Name="dpStart" Format="dd MMM yyyy" DateSelected="BtnTriggerSearchElement_Clicked"/>
+                    <Label      Grid.Row="1" Grid.Column="2"     Text="end :"     HorizontalOptions="End" VerticalOptions="Center"/>
+                    <DatePicker Grid.Row="1" Grid.Column="3"     x:Name="dpEnd"   Format="dd MMM yyyy" DateSelected="BtnTriggerSearchElement_Clicked"/>
+
+                    <Frame Grid.Row="2" Grid.ColumnSpan="4" x:Name="frmList" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="LightGray"  HasShadow="False" IsVisible="false" HorizontalOptions="Center">
+                        <Label x:Name="lblListCount" Text="-" FontSize="Micro" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
+                    </Frame>
+                </Grid>
+
+                <CollectionView x:Name="cvChatLines" EmptyView="No chat lines">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="10"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding IsSender1}" VerticalOptions="Start" Margin="0,10,0,0"/>
+                                <Frame Grid.Column="1" Background="{Binding Background}" BorderColor="White" CornerRadius="10" Padding="8" Margin="2" >
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0"     Text="{Binding Sender}"      FontSize="Micro" />
+                                        <Label Grid.Row="0" Grid.Column="1"     Text="{Binding Line}"      FontSize="Micro" HorizontalTextAlignment="End"/>
+                                        <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Message}"     FontSize="Micro" TextColor="White"/>
+                                        <Label Grid.Row="2" Grid.Column="1"     Text="{Binding DateTimeStr}" FontSize="Micro" TextColor="White" HorizontalTextAlignment="End"/>
+                                    </Grid>
+                                </Frame>
+                                <Ellipse Grid.Column="2" WidthRequest="10" HeightRequest="10" Fill="{Binding Background}" IsVisible="{Binding IsSender2}" VerticalOptions="Start" Margin="0,10,0,0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Stats -->
+            <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
+                <Label Text="messages sent" HorizontalOptions="Center"/>
+                <lvc:CartesianChart 
+                    x:Name="crtBarMessagesSent"
+                    HeightRequest="175"
+                    LegendPosition="Bottom"/>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+                <Label Text="most Messages sent" HorizontalOptions="Center"/>
+                <lvc:CartesianChart 
+                    x:Name="crtBarMostMessagesSent"
+                    HeightRequest="175"
+                    LegendPosition="Bottom"/>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+                <Label Text="messages over time" HorizontalOptions="Center"/>
+                <lvc:CartesianChart 
+                    x:Name="crtLineEvolution"
+                    HeightRequest="175"
+                    LegendPosition="Bottom"/>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+
+                <Label Text="emojis sent" HorizontalOptions="Center"/>
+                <lvc:PieChart 
+                    x:Name="crtPieEmojisSent"
+                    HeightRequest="175"
+                    LegendPosition="Bottom"/>
+            </StackLayout>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Settings -->
+            <StackLayout x:Name="slSettings" IsVisible="False" Margin="10">
+                <!-- Date & Reason -->
+                <Grid ColumnSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <!-- DateTime Format -->
+                    <Label Grid.Row="0" Grid.Column="0"  HorizontalOptions="End"                             Text="date format :"                             FontSize="Small" VerticalOptions="Center"/>
+                    <Entry Grid.Row="0" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtDateFormat"   Text="M/d/yy"        Placeholder="M/d/yy"        FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
+                    <!-- DateTime Format Templates -->
+                    <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
+                        <Button x:Name="btnDateFormat_Mdy"      Text="M/d/yy"     WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089" Clicked="BtnDateFormat_Mdy_Clicked"/>
+                        <Button x:Name="btnDateFormat_ddMMyyyy" Text="dd/MM/yyyy" WidthRequest="150" FontSize="Micro" Padding="5" BackgroundColor="#9a0089"  Clicked="BtnDateFormat_ddMMyyyy_Clicked"/>
+                    </StackLayout>
+                    <!-- Sender 1 -->
+                    <Label Grid.Row="2" Grid.Column="0"  HorizontalOptions="End"                              Text="sender1 color :"                           FontSize="Small" VerticalOptions="Center"/>
+                    <Entry Grid.Row="2" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender1Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
+                    <!-- Sender 2 -->
+                    <Label Grid.Row="3" Grid.Column="0"  HorizontalOptions="End"                              Text="sender2 color :"                           FontSize="Small" VerticalOptions="Center"/>
+                    <Entry Grid.Row="3" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSender2Color"  Text="-"             Placeholder="Color"         FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
+                    <!-- Total -->
+                    <Label Grid.Row="4" Grid.Column="0"  HorizontalOptions="End"                              Text="total color :"                             FontSize="Small" VerticalOptions="Center"/>
+                    <Entry Grid.Row="4" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtSenderTColor"  Text="-"         Placeholder="Color"             FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
+                    <!-- Total -->
+                    <Label Grid.Row="5" Grid.Column="0"  HorizontalOptions="End"                              Text="fill opacity :"                            FontSize="Small" VerticalOptions="Center"/>
+                    <Entry Grid.Row="5" Grid.Column="1"  HorizontalOptions="Start"  x:Name="txtOpacity"       Text="-"             Placeholder="55"            FontSize="Small" HorizontalTextAlignment="Center" WidthRequest="200" VerticalOptions="Center" Completed="BtnSaveSettings_Clicked"/>
+                </Grid>
+
+                <Grid Margin="0,30,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <ImageButton Grid.Row="0" Source="settings.png" HeightRequest="100" WidthRequest="50"       BackgroundColor="Transparent" Clicked="BtnSaveSettings_Clicked"/>
+                    <Label       Grid.Row="1" Text="save"           FontSize="Micro"    HorizontalOptions="Center"/>
+                </Grid>
+            </StackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>
