@@ -57,8 +57,8 @@
                     <ImageButton x:Name="btnLoadFile"  HeightRequest="120" Source="loadfile.png" Clicked="BtnLoadFile_Clicked" HorizontalOptions="Center" />
                     <Label Text="load a WhatsApp file" HorizontalTextAlignment="Center"/>
                     <!-- Progress bar -->
-                    <ProgressBar x:Name="prgBarLines" IsVisible="true" Progress="0.0" ProgressColor="#9a0089" />
-                    <Label x:Name="lblProgress"       Text="-%" FontSize="Micro" HorizontalTextAlignment="Center"/>
+                    <ProgressBar x:Name="prgBarLines" IsVisible="false" Progress="0.0" ProgressColor="#9a0089" />
+                    <Label x:Name="lblProgress"       IsVisible="false" Text="-%" FontSize="Micro" HorizontalTextAlignment="Center"/>
                     <!-- Messages loaded -->
                     <Frame x:Name="frmCount" CornerRadius="15" Padding="0" BorderColor="Transparent" BackgroundColor="#9a0089" IsVisible="false" HasShadow="False">
                         <Label x:Name="lblCount" Text="- count -" HorizontalTextAlignment="Center" TextColor="White"  Margin="2"/>
@@ -166,6 +166,10 @@
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             <!-- Stats -->
             <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
+                <Label                            Text="average messages per day" HorizontalOptions="Center"/>
+                <Label x:Name="txtMessagesPerDay" Text="-" FontSize="50"          HorizontalOptions="Center" TextColor="Silver"/>
+                <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
+                
                 <Label Text="messages sent" HorizontalOptions="Center"/>
                 <lvc:CartesianChart 
                     x:Name="crtBarMessagesSent"
