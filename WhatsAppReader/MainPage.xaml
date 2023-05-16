@@ -9,48 +9,56 @@
         <mct:StatusBarBehavior StatusBarColor = "#9a0089" />
     </ContentPage.Behaviors>
 
-    <ScrollView>
-        <VerticalStackLayout>
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-            <!-- Menu -->
-            <Grid x:Name="slMenu" IsVisible="True" Margin="0,10,0,0" HorizontalOptions="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="60"/>
-                    <RowDefinition Height="50"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="70"/>
-                </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-                <!-- Negative Margins to remove border -->
-                <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <!-- Menu -->
+        <Grid x:Name="slMenu" Grid.Row="0" IsVisible="True" Margin="0,10,0,0" HorizontalOptions="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- Buttons -->
-                <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"              WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnLoad_Clicked"/>
-                <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"     WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnList_Clicked"/>
-                <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnStats_Clicked"/>
-                <ImageButton Grid.Row="1" Grid.Column="3" x:Name="btnSettings"     Source="settings_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnSettings_Clicked"/>
+            <!-- Negative Margins to remove border -->
+            <Frame x:Name="frmStatus" Grid.Row="0" Grid.ColumnSpan="2" CornerRadius="0" BackgroundColor="#9a0089" BorderColor="Transparent" Margin="-130,-22,-190,10" />
 
-                <!-- Labels -->
-                <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"     FontSize="Small" HorizontalTextAlignment="Center"/>
-                <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"     FontSize="Small" HorizontalTextAlignment="Center"/>
-                <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"    FontSize="Small" HorizontalTextAlignment="Center"/>
-                <Label       Grid.Row="2" Grid.Column="3" x:Name="lblMenuSettings" Text="settings" FontSize="Small" HorizontalTextAlignment="Center"/>
+            <!-- Buttons -->
+            <ImageButton Grid.Row="1" Grid.Column="0" x:Name="btnLoad"         Source="load.png"              WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnLoad_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="1" x:Name="btnList"         Source="list_disabled.png"     WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnList_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="2" x:Name="btnStats"        Source="stats_disabled.png"    WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnStats_Clicked"/>
+            <ImageButton Grid.Row="1" Grid.Column="3" x:Name="btnSettings"     Source="settings_disabled.png" WidthRequest="70" BackgroundColor="Transparent" Clicked="BtnSettings_Clicked"/>
 
-                <!-- Underlines -->
-                <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"      HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
-                <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"      HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-                <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"     HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-                <BoxView     Grid.Row="3" Grid.Column="3" x:Name="bxSettings"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
-            </Grid>
+            <!-- Labels -->
+            <Label       Grid.Row="2" Grid.Column="0" x:Name="lblMenuLoad"     Text="load"     FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="1" x:Name="lblMenuList"     Text="list"     FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="2" x:Name="lblMenuStats"    Text="stats"    FontSize="Small" HorizontalTextAlignment="Center"/>
+            <Label       Grid.Row="2" Grid.Column="3" x:Name="lblMenuSettings" Text="settings" FontSize="Small" HorizontalTextAlignment="Center"/>
 
+            <!-- Underlines -->
+            <BoxView     Grid.Row="3" Grid.Column="0" x:Name="bxLoad"      HeightRequest="1" Margin="10,0,10,0" Color="#9a0089"/>
+            <BoxView     Grid.Row="3" Grid.Column="1" x:Name="bxList"      HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="2" x:Name="bxStats"     HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+            <BoxView     Grid.Row="3" Grid.Column="3" x:Name="bxSettings"  HeightRequest="1" Margin="10,0,10,0" Color="Transparent"/>
+        </Grid>
+
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <!-- Main View -->
+        <ScrollView Grid.Row="1" Margin="10,5,10,10">
+            <VerticalStackLayout>
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             <!-- Load -->
-            <StackLayout x:Name="slLoad" IsVisible="True" Margin="10">
+            <StackLayout x:Name="slLoad" IsVisible="True">
                 <!-- Load File -->
                 <StackLayout HorizontalOptions="Center" Spacing="10">
                     <!-- Button to Load File -->
@@ -103,7 +111,7 @@
 
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             <!-- List -->
-            <StackLayout x:Name="slList" IsVisible="False" Margin="10,-10,10,0">
+            <StackLayout x:Name="slList" IsVisible="False">
                 <Grid ColumnSpacing="10" HorizontalOptions="Center" Margin="0,0,0,10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50"/>
@@ -165,11 +173,11 @@
 
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             <!-- Stats -->
-            <StackLayout x:Name="slStats" IsVisible="False" Margin="10,-10,10,0">
+            <StackLayout x:Name="slStats" IsVisible="False">
                 <Label                            Text="average messages per day" HorizontalOptions="Center"/>
                 <Label x:Name="txtMessagesPerDay" Text="-" FontSize="50"          HorizontalOptions="Center" TextColor="Silver"/>
                 <BoxView Color="LightGray" HeightRequest="1" Margin="10"/>
-                
+
                 <Label Text="messages sent" HorizontalOptions="Center"/>
                 <lvc:CartesianChart 
                     x:Name="crtBarMessagesSent"
@@ -200,7 +208,7 @@
 
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             <!-- Settings -->
-            <StackLayout x:Name="slSettings" IsVisible="False" Margin="10">
+            <StackLayout x:Name="slSettings" IsVisible="False">
                 <!-- Date & Reason -->
                 <Grid ColumnSpacing="10">
                     <Grid.RowDefinitions>
@@ -247,7 +255,12 @@
                     <Label       Grid.Row="1" Text="save"           FontSize="Micro"    HorizontalOptions="Center"/>
                 </Grid>
             </StackLayout>
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+
+
+    </Grid>
+
 
 </ContentPage>

@@ -92,7 +92,6 @@ public partial class MainPage : ContentPage
 
     // TODO
     // Pie Chart Emoji : text not displayed
-    // Keep menu on top
     // Collectionview performances
     public MainPage()
 	{
@@ -376,7 +375,7 @@ public partial class MainPage : ContentPage
         return words.Count - emojisInfo.LengthInTextElements;
     }
 
-    // TODO Emoji : Count the occurences of character in a string
+    // Count the occurences of character in a string (simple as it does not work with emojis - unused)
     private List<CountClass> CountCharacterOccurences(string theText, bool ascending = true)
     {
 
@@ -393,6 +392,31 @@ public partial class MainPage : ContentPage
 
             theText = theText.Replace(theText[0].ToString(), string.Empty);
         }
+
+        theCountList = (ascending ? theCountList.OrderBy(c => c.Count).ToList() : theCountList.OrderByDescending(c => c.Count).ToList());
+
+        return theCountList;
+    }
+
+    // Count the occurences of character in a string (advanced - Emoji support)
+    private List<CountClass> CountCharacterOccurencesExtended(string theText, bool ascending = true)
+    {
+        // Emojis are multiple unicodes characters so iterating through theText's characters would not work
+        // as it would break the emoji's definitions
+
+        // So here we rebuid the string as a List of string : a, Emoji1, b, ...
+        List<CountClass> theCountList = new();
+        var graphemeEnumerator = StringInfo.GetTextElementEnumerator(theText);
+        while (graphemeEnumerator.MoveNext())
+        {
+            string grapheme = graphemeEnumerator.GetTextElement();
+            theCountList.Add(new CountClass { Category = grapheme, Count = 0 });
+        }
+
+        // Calculate count of messages
+        theCountList = theCountList.GroupBy(c => c.Category)
+                                   .Select(c => new CountClass { Category = c.Key, Count = c.Count() }).ToList();
+
 
         theCountList = (ascending ? theCountList.OrderBy(c => c.Count).ToList() : theCountList.OrderByDescending(c => c.Count).ToList());
 
@@ -1012,7 +1036,7 @@ public partial class MainPage : ContentPage
             BigEmojiList += aChatLine.Emojis;
 
         // Count the occurences of emojis : special treatment as emoji are different
-        List<CountClass> emojiCount = CountCharacterOccurences(BigEmojiList);
+        List<CountClass> emojiCount = CountCharacterOccurencesExtended(BigEmojiList);
         emojiCount = emojiCount.TakeLast(EmojiPieLimit).ToList();
 
         // Pie Chart Series
