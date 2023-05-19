@@ -150,16 +150,16 @@
                                 <Frame Grid.Column="1" Background="{Binding Background}" BorderColor="White" CornerRadius="10" Padding="8" Margin="2" >
                                     <Grid>
                                         <Grid.RowDefinitions>
+                                            <RowDefinition Height="20"/>
                                             <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
+                                            <RowDefinition Height="20"/>
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
                                         <Label Grid.Row="0" Grid.Column="0"     Text="{Binding Sender}"      FontSize="Micro" />
-                                        <Label Grid.Row="0" Grid.Column="1"     Text="{Binding Line}"      FontSize="Micro" HorizontalTextAlignment="End"/>
+                                        <Label Grid.Row="0" Grid.Column="1"     Text="{Binding Line}"        FontSize="Micro" HorizontalTextAlignment="End"/>
                                         <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Message}"     FontSize="Micro" TextColor="White"/>
                                         <Label Grid.Row="2" Grid.Column="1"     Text="{Binding DateTimeStr}" FontSize="Micro" TextColor="White" HorizontalTextAlignment="End"/>
                                     </Grid>

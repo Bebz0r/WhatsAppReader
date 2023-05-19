@@ -737,13 +737,13 @@ public partial class MainPage : ContentPage
             var result = await DisplayAlert("Warning", $"Items to display are more than {DisplayLimit}. Are you sure you want to continue ?", "YES", "CANCEL");
             if (result)
                 cvChatLines.ItemsSource = filteredList;
-                lblListCount.Text = $"{filteredList.Count} message{(filteredList.Count > 1 ? "s": "")} out of {chatList.Count}";
+                lblListCount.Text = $"{filteredList.Count.ToString("n0", nfi)} message{(filteredList.Count > 1 ? "s": "")} out of {chatList.Count.ToString("n0", nfi)}";
         }
         else
             cvChatLines.ItemsSource = filteredList;
 
         // Display the result
-        lblListCount.Text = $"{filteredList.Count} message{(filteredList.Count > 1 ? "s" : "")} out of {chatList.Count}";
+        lblListCount.Text = $"{filteredList.Count.ToString("n0", nfi)} message{(filteredList.Count > 1 ? "s" : "")} out of {chatList.Count.ToString("n0", nfi)}";
     }
     #endregion
 
